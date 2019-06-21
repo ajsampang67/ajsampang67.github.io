@@ -1,0 +1,28 @@
+{
+  "name": "ajsampang67.github.io",
+  "version": "1.0.0",
+  "description": "Personal site",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-css": "sass --watch scss/main.scss:../main.css",
+    "start": "concurrently \"http-server\" && \"npm run build-css\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajsampang67/ajsampang67.github.io.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ajsampang67/ajsampang67.github.io/issues"
+  },
+  "homepage": "https://github.com/ajsampang67/ajsampang67.github.io#readme",
+  "dependencies": {
+    "node-sass": "^4.12.0"
+  },
+  "devDependencies": {
+    "concurrently": "^4.1.0",
+    "http-server": "^0.11.1"
+  }
+}
