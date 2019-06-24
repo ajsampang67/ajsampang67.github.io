@@ -1,13 +1,14 @@
 $(document).ready(function() {
     $(window).on("scroll", function() {
-        if ($(window).scrollTop() >= 20) {
+        if ($(window).scrollTop() >= 200) {
             $(".navbar").addClass("compressed");
-            //$(".img-fluid").addClass("float-left");
-            document.getElementById("me").style.maxWidth="10%";
+            document.getElementById("me").style.maxWidth="5%";
+            $('#navbar-header-text').hide();
+
         } else {
             $(".navbar").removeClass("compressed");
-            //$(".img-fluid").removeClass("float-left");
             document.getElementById("me").style.maxWidth="30%";
+            $('#navbar-header-text').show();
         }
     });
 });

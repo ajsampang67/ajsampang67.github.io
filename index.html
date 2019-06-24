@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <link rel="stylesheet" type="text/css" href="main.css"/>
         <title>Aj's Playground</title>
@@ -11,32 +12,47 @@
         <!-- Bootstrap -->
     </head>
     <body>
-        <!-- NAV BAR -->
         <div class="bg-container">
-            <nav class="navbar fixed-top shadow mb-5">
-                    <!-- Navbar Header [collects both toggle button and navbar brand] -->
-                    <div class="navbar-header">
-                        <!-- Navbar Brand -->
-                        <img id="me" src="images/me.jpg"
-                             class="img-fluid rounded-circle shadow-lg mb-5 bg-white rounded"/>
-                    </div>
-            </nav>
-            <div style="height:300px;"></div>
             <!-- NAV BAR -->
-            
-            <div class="jumbotron" id="jumbotron">
-                <h1 class="display-4">Hello world!</h1>
-                <p class="lead">This is a work in progress</p>
-                <hr class="my-4">
+            <nav class="navbar navbar-expand fixed-top shadow" id="navbar">
+                <!-- Navbar Header [collects both toggle button and navbar brand] -->
+                <div class="navbar-header">
+                    <!-- Navbar Brand -->
+                    <img id="me" src="images/me.jpg"
+                         class="img-fluid rounded-circle shadow-lg bg-white rounded float-left"/>
+                    
+                    <span class="navbar-header-text" id="navbar-header-text">
+                        Hi! My names Alfred Sampang, but you can call me Aj.
+                        <br/>I'm currently a Consultant at Liferay
+                        <br/>This is my personal website
+                    </span>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                        <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+                        <a class="nav-item nav-link" href="#">Features</a>
+                        <a class="nav-item nav-link" href="#">Pricing</a>
+                    </div>
+                </div>
+                
+            </nav>
+        <!-- NAV BAR -->
+    
+            <div class="body-margin">
+                <div class="jumbotron" id="jumbotron">
+                    <h1 class="display-4">Hello world!</h1>
+                    <p class="lead">This is a work in progress</p>
+                    <hr class="my-4">
+                </div>
+                <!-- Placeholder to show scroll effect -->
+                <div style="height:900px;"></div>
+        
+                <!-- React -->
+                <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+                <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+                <!-- React -->
+                <script src="scripts/navbar.js"></script>
             </div>
-            <!-- Placeholder to show scroll effect -->
-            <div style="height:900px;"></div>
-            
-            <!-- React -->
-            <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
-            <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
-            <!-- React -->
-            <script src="scripts/navbar.js"></script>
         </div>
     </body>
 </html>

@@ -1,7 +1,42 @@
+// Node
+@import "../node_modules/bootstrap/scss/_functions";
+@import "../node_modules/bootstrap/scss/_variables";
+@import "../node_modules/bootstrap/scss/mixins/_breakpoints";
 @import 'variables';
 
 .bg-container{
   background-color: $darkShades;
+}
+
+html{
+  background-color: $darkShades;
+}
+
+// Font sizes
+html {
+  font-size: 1rem;
+}
+
+@include media-breakpoint-up(sm) {
+  html {
+    font-size: 1rem;
+  }
+}
+
+@include media-breakpoint-up(md) {
+  html {
+    font-size: 1.2rem;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  html {
+    font-size: 1.6rem;
+  }
+}
+
+.body-margin{
+  padding-top:30%;
 }
 
 @import 'navbar';

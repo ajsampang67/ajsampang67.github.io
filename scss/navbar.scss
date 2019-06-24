@@ -1,20 +1,32 @@
 .navbar {
   background: $lightAccent;
-  transition: all 0.3s;
+  transition: all 0.5s;
 }
 .navbar a {
   color: $lightShades;
 }
 
 .navbar img{
-  max-width: 10%;
-  transition: all 0.3s;
+  max-width: 30%;
+  transition: all 0.5s;
+  margin-top: .5em;
+  margin-bottom: .5em;
+  margin-right: 5em;
 }
 
-.navbar button {
+.navbar span{
+  font-family: 'Lato', sans-serif;
+  padding-top: 5%;
+  min-height: 100px;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  line-height: 350%;
+  color: $darkShades;
 }
 
 .navbar.compressed {
   background: $darkShades;
   color: $lightAccent;
 }
+
