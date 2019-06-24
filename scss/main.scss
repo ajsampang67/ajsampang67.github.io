@@ -1,3 +1,8 @@
 @import 'variables';
-@import 'jumbotron';
+
+.bg-container{
+  background-color: $darkShades;
+}
+
 @import 'navbar';
+@import 'jumbotron';

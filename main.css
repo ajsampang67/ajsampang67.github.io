@@ -1,7 +1,24 @@
 /* Colors by http://colormind.io/bootstrap/ */
-/* Colors by http://colormind.io/bootstrap/ */
-div#jumbotron {
-  color: #2FD6C5;
-  background-color: #2E3446; }
+.bg-container {
+  background-color: #222F45; }
+
+.navbar {
+  background: #6A92AE;
+  transition: all 0.3s; }
+
+.navbar a {
+  color: #F5F7F3; }
+
+.navbar img {
+  max-width: 10%;
+  transition: all 0.3s; }
+
+.navbar.compressed {
+  background: #222F45;
+  color: #6A92AE; }
+
+#jumbotron {
+  color: #00CCCC;
+  background-color: #222F45; }
 
 /*# sourceMappingURL=main.css.map */

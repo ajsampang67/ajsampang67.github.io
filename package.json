@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-css": "sass --watch scss/main.scss:../main.css",
+    "build-css": "sass --watch scss/main.scss:main.css",
     "start": "concurrently \"http-server\" && \"npm run build-css\""
   },
   "repository": {
