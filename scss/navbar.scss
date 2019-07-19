@@ -1,9 +1,11 @@
 .navbar {
-  background: $lightAccent;
+  background: $darkShades;
   transition: all 0.5s;
 }
 .navbar a {
-  color: $lightShades;
+  font-size: .75rem;
+  color: $mainBrandColor;
+  white-space: nowrap;
 }
 
 .navbar img{
@@ -12,18 +14,20 @@
   margin-top: .5em;
   margin-bottom: .5em;
   margin-right: 5em;
+  border-radius: 50%;
+  -webkit-shape-outside: circle();
+  shape-outside: circle();
 }
 
-.navbar span{
-  font-family: 'Lato', sans-serif;
-  padding-top: 5%;
+.navbar p{
+  padding-top: 2%;
   min-height: 100px;
-  display: inline-flex;
-  align-items: center;
   font-weight: 700;
-  line-height: 350%;
-  color: $darkShades;
+  line-height: 400%;
+  color: $mainBrandColor;
+  font-size:1.5vw;
 }
+
 
 .navbar.compressed {
   background: $darkShades;

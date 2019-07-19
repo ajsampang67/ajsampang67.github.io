@@ -18,20 +18,23 @@
                 <!-- Navbar Header [collects both toggle button and navbar brand] -->
                 <div class="navbar-header">
                     <!-- Navbar Brand -->
-                    <img id="me" src="images/me.jpg"
+                    <img id="me" src="images/me.png"
                          class="img-fluid rounded-circle shadow-lg bg-white rounded float-left"/>
                     
-                    <span class="navbar-header-text" id="navbar-header-text">
-                        Hi! My names Alfred Sampang, but you can call me Aj.
-                        <br/>I'm currently a Consultant at Liferay
+                    <p class="navbar-header-text" id="navbar-header-text">
+                        My names Alfred Sampang, but you can call me Aj
+                        <br/>&nbsp;&nbsp;&nbsp; I'm a Developer
                         <br/>This is my personal website
-                    </span>
+                    </p>
                 </div>
-                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="collapse navbar-collapse navbarNav" id="navbarNav">
                     <div class="navbar-nav">
-                        <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
-                        <a class="nav-item nav-link" href="#">Features</a>
-                        <a class="nav-item nav-link" href="#">Pricing</a>
+                        <a class="nav-item nav-link active" href="#">About Me
+                            <span class="sr-only">(current)</span></a>
+                        <a class="nav-item nav-link" href="pages/wip.html">Blog
+                        </a>
+                        <a class="nav-item nav-link" href="pages/wip.html">
+                            Projects</a>
                     </div>
                 </div>
                 
@@ -39,14 +42,59 @@
         <!-- NAV BAR -->
     
             <div class="body-margin">
-                <div class="jumbotron" id="jumbotron">
+                <div class="jumbotron" id="jumbotron-family">
                     <h1 class="display-4">Hello world!</h1>
-                    <p class="lead">This is a work in progress</p>
+                    <p class="lead">I was born into the Sampang family on
+                        May 29th, 1996</p>
                     <hr class="my-4">
+    
+    
+                    <div class="family-flex">
+                        <div class="flex-item">
+                            <img alt="sis" src="images/sister.png" id="sis"
+                                 class="img-fluid rounded-circle shadow-lg bg-white rounded float-left curve" />
+                            Leilani
+                            <div class="desc">
+                                <p>
+                                <br/>Sister
+                                <br/>Michigan
+                                <br/>Medical Student
+                                <br/>Pineapple Enthusiast
+                                <br/>Globe-trotter
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex-item">
+                            <img alt="dad" src="images/dad.png" id="dad"
+                                 class="img-fluid rounded-circle shadow-lg bg-white rounded float-left curve" />
+                            Alfredo
+                            <div class="desc">
+                                <p>
+                                <br/>Father
+                                <br/>Illinois
+                                <br/>Green Thumb
+                                <br/>Fisherman
+                                <br/>Handyman
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex-item">
+                            <img alt="mom" src="images/mom.png" id="mom"
+                                 class="img-fluid rounded-circle shadow-lg bg-white rounded float-left curve" />
+                            Flora
+                            <div class="desc">
+                                <p>
+                                <br/>Mother
+                                <br/>Illinois
+                                <br/>Baker
+                                <br/>Tailor
+                                <br/>Businesswoman
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <!-- Placeholder to show scroll effect -->
-                <div style="height:900px;"></div>
-        
+    
                 <!-- React -->
                 <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
                 <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>

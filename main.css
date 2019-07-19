@@ -1,55 +1,103 @@
 /* Colors by http://colormind.io/bootstrap/ */
+/**
+$lightShades:       #F5F7F3;
+$lightAccent:       #6A92AE;
+$mainBrandColor:    #00CCCC;
+$darkAccent:        #B23C58;
+$darkShades:        #222F45;
+ */
+@import url("https://fonts.googleapis.com/css?family=Kalam|Varela+Round&display=swap");
 .bg-container {
-  background-color: #222F45; }
+  background-color: #F5F5F5; }
 
 html {
-  background-color: #222F45; }
+  background-color: #F5F5F5; }
 
 html {
   font-size: 1rem; }
 
 @media (min-width: 576px) {
   html {
-    font-size: 1rem; } }
+    font-size: .75rem; } }
 @media (min-width: 768px) {
   html {
     font-size: 1.2rem; } }
 @media (min-width: 992px) {
   html {
     font-size: 1.6rem; } }
+body {
+  font-family: "Varela Round", sans-serif !important; }
+
 .body-margin {
-  padding-top: 30%; }
+  padding-top: 30%;
+  padding-left: 10%;
+  padding-right: 10%; }
 
 .navbar {
-  background: #6A92AE;
+  background: #2B4B5E;
   transition: all 0.5s; }
 
 .navbar a {
-  color: #F5F7F3; }
+  font-size: .75rem;
+  color: #69CAC5;
+  white-space: nowrap; }
 
 .navbar img {
   max-width: 30%;
   transition: all 0.5s;
   margin-top: .5em;
   margin-bottom: .5em;
-  margin-right: 5em; }
+  margin-right: 5em;
+  border-radius: 50%;
+  -webkit-shape-outside: circle();
+  shape-outside: circle(); }
 
-.navbar span {
-  font-family: 'Lato', sans-serif;
-  padding-top: 5%;
+.navbar p {
+  padding-top: 2%;
   min-height: 100px;
-  display: inline-flex;
-  align-items: center;
   font-weight: 700;
-  line-height: 350%;
-  color: #222F45; }
+  line-height: 400%;
+  color: #69CAC5;
+  font-size: 1.5vw; }
 
 .navbar.compressed {
-  background: #222F45;
-  color: #6A92AE; }
+  background: #2B4B5E;
+  color: #A4ABAB; }
 
-#jumbotron {
-  color: #00CCCC;
-  background-color: #222F45; }
+#jumbotron-family {
+  color: #69CAC5;
+  background-color: #F5F5F5; }
+
+#jumbotron-family img {
+  max-width: 15vw;
+  min-width: 3vw;
+  transition: all 0.5s;
+  margin-top: .5em;
+  margin-bottom: .5em;
+  margin-right: 5em;
+  margin-left: .5em; }
+
+#jumbotron-family .curve {
+  float: left;
+  margin-right: 2rem;
+  border-radius: 50%;
+  -webkit-shape-outside: circle();
+  shape-outside: circle(); }
+
+#jumbotron-family .desc {
+  font-family: 'Kalam', monospace;
+  font-size: .7em;
+  max-height: 15vw;
+  min-height: 3vw; }
+
+.family-flex {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; }
+
+.flex-item {
+  vertical-align: center;
+  text-align: left;
+  flex: 1; }
 
 /*# sourceMappingURL=main.css.map */

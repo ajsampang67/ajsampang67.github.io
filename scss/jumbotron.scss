@@ -1,4 +1,42 @@
-#jumbotron {
+#jumbotron-family {
   color: $mainBrandColor;
-  background-color: $darkShades;
+  background-color: $lightShades;
 }
+
+#jumbotron-family img{
+  max-width: 15vw;
+  min-width: 3vw;
+  transition: all 0.5s;
+  margin-top: .5em;
+  margin-bottom: .5em;
+  margin-right: 5em;
+  margin-left: .5em;
+}
+
+#jumbotron-family .curve {
+  float: left;
+  margin-right:2rem;
+  border-radius: 50%;
+  -webkit-shape-outside:circle();
+  shape-outside:circle();
+}
+
+#jumbotron-family .desc {
+  font-family: 'Kalam', monospace;
+  font-size: .7em;
+  max-height: 15vw;
+  min-height: 3vw;
+}
+
+.family-flex {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.flex-item{
+  vertical-align: center;
+  text-align:left;
+  flex: 1;
+}
+

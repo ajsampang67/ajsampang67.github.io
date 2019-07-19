@@ -3,13 +3,14 @@
 @import "../node_modules/bootstrap/scss/_variables";
 @import "../node_modules/bootstrap/scss/mixins/_breakpoints";
 @import 'variables';
+@import url('https://fonts.googleapis.com/css?family=Kalam|Varela+Round&display=swap');
 
 .bg-container{
-  background-color: $darkShades;
+  background-color: $lightShades;
 }
 
 html{
-  background-color: $darkShades;
+  background-color: $lightShades;
 }
 
 // Font sizes
@@ -19,7 +20,7 @@ html {
 
 @include media-breakpoint-up(sm) {
   html {
-    font-size: 1rem;
+    font-size: .75rem;
   }
 }
 
@@ -35,8 +36,14 @@ html {
   }
 }
 
+body{
+  font-family: "Varela Round", sans-serif !important;
+}
+
 .body-margin{
   padding-top:30%;
+  padding-left:10%;
+  padding-right:10%;
 }
 
 @import 'navbar';
