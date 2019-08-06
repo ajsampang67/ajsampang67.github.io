@@ -6,7 +6,8 @@ $mainBrandColor:    #00CCCC;
 $darkAccent:        #B23C58;
 $darkShades:        #222F45;
  */
-@import url("https://fonts.googleapis.com/css?family=Kalam|Varela+Round&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Kalam|Varela+Round|EB+Garamond&display=swap");
+@import url("https://use.typekit.net/ktr1lrv.css");
 .bg-container {
   background-color: #F5F5F5; }
 
@@ -68,9 +69,9 @@ body {
   color: #69CAC5;
   background-color: #F5F5F5; }
 
-#jumbotron-family img {
+.flex-item img {
   max-width: 15vw;
-  min-width: 3vw;
+  min-width: 4vw;
   transition: all 0.5s;
   margin-top: .5em;
   margin-bottom: .5em;
@@ -98,6 +99,27 @@ body {
 .flex-item {
   vertical-align: center;
   text-align: left;
-  flex: 1; }
+  flex: 1;
+  min-width: 400px; }
+
+#jumbotron-uiuc {
+  font-family: adobe-garamond-pro, serif;
+  background-color: #F5F5F5;
+  color: #13294B; }
+
+#jumbotron-uiuc h1 {
+  font-size: 5em;
+  font-weight: 700;
+  /**
+  color: $ILOrange;
+  -webkit-text-stroke-color: $ILBlue;
+  **/
+  -webkit-text-stroke-color: #E84A27;
+  -webkit-text-stroke-width: thin; }
+
+.uiuc-flex {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; }
 
 /*# sourceMappingURL=main.css.map */

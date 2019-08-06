@@ -3,7 +3,8 @@
 @import "../node_modules/bootstrap/scss/_variables";
 @import "../node_modules/bootstrap/scss/mixins/_breakpoints";
 @import 'variables';
-@import url('https://fonts.googleapis.com/css?family=Kalam|Varela+Round&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Kalam|Varela+Round|EB+Garamond&display=swap');
+@import url("https://use.typekit.net/ktr1lrv.css");
 
 .bg-container{
   background-color: $lightShades;
