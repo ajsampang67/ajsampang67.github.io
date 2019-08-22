@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>The page you were looking for doesn't exist (404)</title>
+        <!-- Bootstrap -->
+        <title>The page you were looking for doesn't exist yet</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
+              integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+              crossorigin="anonymous">
+        <!-- Bootstrap -->
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <style>
             body {
@@ -73,9 +78,9 @@
             <div class="dialog">
                 <h1>Ah, nuts!</h1>
                 <p>You found a page still in progress. Come back again soon!</p>
-                <button
-                        onclick="window.location.href = '../index.html'">Return
-                    Home</button>
+                <button type="button" class="btn btn-primary" onclick="window.location.href = '../index.html'">
+                    Return Home
+                </button>
             </div>
             <img src="../images/nuts.png" class="image">
         </div>
