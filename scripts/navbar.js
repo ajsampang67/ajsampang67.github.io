@@ -2,7 +2,7 @@ $(document).ready(function() {
     $(window).on("scroll", function() {
         if ($(window).scrollTop() >= 250) {
             $(".navbar").addClass("compressed");
-            document.getElementById("me").style.maxWidth="4%";
+            document.getElementById("me").style.maxWidth="10%";
             $('#navbar-header-text').hide();
             $('#navbarNav').show();
 

@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css?family=Kalam|Varela+Round|EB+Garamond&display=swap");
+@import url("https://use.typekit.net/ktr1lrv.css");
 /* Colors by http://colormind.io/bootstrap/ */
 /**
 $lightShades:       #F5F7F3;
@@ -6,106 +8,111 @@ $mainBrandColor:    #00CCCC;
 $darkAccent:        #B23C58;
 $darkShades:        #222F45;
  */
-@import url("https://fonts.googleapis.com/css?family=Kalam|Varela+Round|EB+Garamond&display=swap");
-@import url("https://use.typekit.net/ktr1lrv.css");
 .bg-container {
-  background-color: #F5F5F5; }
+  background-color: #F5F5F5;
+}
 
 html {
-  background-color: #F5F5F5; }
+  background-color: #F5F5F5;
+}
 
 html {
-  font-size: 1rem; }
+  font-size: 2.5vw;
+}
 
-@media (min-width: 576px) {
-  html {
-    font-size: .75rem; } }
-@media (min-width: 768px) {
-  html {
-    font-size: 1.2rem; } }
-@media (min-width: 992px) {
-  html {
-    font-size: 1.6rem; } }
 body {
-  font-family: "Varela Round", sans-serif !important; }
+  font-family: "Varela Round", sans-serif !important;
+}
 
 .body-margin {
   padding-top: 30%;
-  padding-left: 10%;
-  padding-right: 10%; }
+}
 
 .navbar {
+  vertical-align: middle;
   background: #2B4B5E;
-  transition: all 0.5s; }
+  transition: all 0.5s;
+}
 
 .navbar a {
-  font-size: .75rem;
+  font-size: 0.75rem;
   color: #69CAC5;
-  white-space: nowrap; }
+  white-space: nowrap;
+}
 
 .navbar img {
+  margin-top: 30%;
   max-width: 30%;
   transition: all 0.5s;
-  margin-top: .5em;
-  margin-bottom: .5em;
-  margin-right: 5em;
+  margin-top: 0.5vw;
+  margin-bottom: 0.5vw;
+  margin-right: 5vw;
   border-radius: 50%;
   -webkit-shape-outside: circle();
-  shape-outside: circle(); }
+  shape-outside: circle();
+}
 
 .navbar p {
-  padding-top: 2%;
   min-height: 100px;
   font-weight: 700;
   line-height: 400%;
   color: #69CAC5;
-  font-size: 1.5vw; }
+  font-size: 2vw;
+}
 
 .navbar.compressed {
   background: #2B4B5E;
-  color: #A4ABAB; }
+  color: #A4ABAB;
+}
 
 #jumbotron-family {
   color: #69CAC5;
-  background-color: #F5F5F5; }
+  background-color: #F5F5F5;
+}
 
 .flex-item img {
   max-width: 15vw;
-  min-width: 4vw;
+  min-width: 5vw;
   transition: all 0.5s;
-  margin-top: .5em;
-  margin-bottom: .5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
   margin-right: 5em;
-  margin-left: .5em; }
+  margin-left: 0.5em;
+}
 
 #jumbotron-family .curve {
   float: left;
   margin-right: 2rem;
   border-radius: 50%;
   -webkit-shape-outside: circle();
-  shape-outside: circle(); }
+  shape-outside: circle();
+}
 
 #jumbotron-family .desc {
-  font-family: 'Kalam', monospace;
-  font-size: .7em;
+  font-family: "Kalam", monospace;
+  font-size: 2vw;
   max-height: 15vw;
-  min-height: 3vw; }
+  min-height: 3vw;
+}
 
 .family-flex {
   display: flex;
   justify-content: space-between;
-  flex-wrap: wrap; }
+  flex-wrap: wrap;
+}
 
 .flex-item {
   vertical-align: center;
   text-align: left;
   flex: 1;
-  min-width: 400px; }
+  min-width: 400px;
+}
 
 #jumbotron-uiuc {
   font-family: adobe-garamond-pro, serif;
   background-color: #F5F5F5;
-  color: #13294B; }
+  color: #13294B;
+}
 
 #jumbotron-uiuc h1 {
   font-size: 5em;
@@ -115,11 +122,13 @@ body {
   -webkit-text-stroke-color: $ILBlue;
   **/
   -webkit-text-stroke-color: #E84A27;
-  -webkit-text-stroke-width: thin; }
+  -webkit-text-stroke-width: thin;
+}
 
 .uiuc-flex {
   display: flex;
   justify-content: space-between;
-  flex-wrap: wrap; }
+  flex-wrap: wrap;
+}
 
 /*# sourceMappingURL=main.css.map */

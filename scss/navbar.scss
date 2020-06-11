@@ -1,4 +1,5 @@
 .navbar {
+  vertical-align: middle;
   background: $darkShades;
   transition: all 0.5s;
 }
@@ -9,23 +10,21 @@
 }
 
 .navbar img{
-  max-width: 30%;
   transition: all 0.5s;
-  margin-top: .5em;
-  margin-bottom: .5em;
-  margin-right: 5em;
+  margin-top: .5vw;
+  margin-bottom: .5vw;
+  margin-right: 5vw;
   border-radius: 50%;
   -webkit-shape-outside: circle();
   shape-outside: circle();
 }
 
 .navbar p{
-  padding-top: 2%;
   min-height: 100px;
   font-weight: 700;
   line-height: 400%;
   color: $mainBrandColor;
-  font-size:1.5vw;
+  font-size:2vw;
 }
 
 
