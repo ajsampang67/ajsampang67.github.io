@@ -17,7 +17,7 @@ html {
 }
 
 html {
-  font-size: 2.5vw;
+  font-size: 2vw;
 }
 
 body {
@@ -35,13 +35,14 @@ body {
 }
 
 .navbar a {
-  font-size: 0.75rem;
+  font-size: 2vw;
+  max-font-size: 0.5rem;
+  min-width: 20%;
   color: #69CAC5;
   white-space: nowrap;
 }
 
 .navbar img {
-  margin-top: 30%;
   max-width: 30%;
   transition: all 0.5s;
   margin-top: 0.5vw;
@@ -71,13 +72,10 @@ body {
 }
 
 .flex-item img {
-  max-width: 15vw;
+  max-width: 20vw;
   min-width: 5vw;
   transition: all 0.5s;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-  margin-right: 5em;
-  margin-left: 0.5em;
+  margin: 0.5em 5em 0.5em 0.5em;
 }
 
 #jumbotron-family .curve {
@@ -90,9 +88,9 @@ body {
 
 #jumbotron-family .desc {
   font-family: "Kalam", monospace;
-  font-size: 2vw;
+  font-size: 2.25vw;
   max-height: 15vw;
-  min-height: 3vw;
+  min-height: 2vw;
 }
 
 .family-flex {
@@ -105,7 +103,7 @@ body {
   vertical-align: center;
   text-align: left;
   flex: 1;
-  min-width: 400px;
+  max-width: 20vw;
 }
 
 #jumbotron-uiuc {

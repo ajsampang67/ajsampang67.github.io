@@ -7,13 +7,10 @@
 }
 
 .flex-item img{
-  max-width: 15vw;
+  max-width: 20vw;
   min-width: 5vw;
   transition: all 0.5s;
-  margin-top: .5em;
-  margin-bottom: .5em;
-  margin-right: 5em;
-  margin-left: .5em;
+  margin: .5em 5em .5em .5em;
 }
 
 #jumbotron-family .curve {
@@ -26,9 +23,9 @@
 
 #jumbotron-family .desc {
   font-family: 'Kalam', monospace;
-  font-size: 2vw;
+  font-size: 2.25vw;
   max-height: 15vw;
-  min-height: 3vw;
+  min-height: 2vw;
 }
 
 .family-flex {
@@ -41,7 +38,7 @@
   vertical-align: center;
   text-align:left;
   flex: 1;
-  min-width: 400px;
+  max-width: 20vw;
 }
 
 #jumbotron-uiuc{

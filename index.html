@@ -2,14 +2,13 @@
 <html lang="en">
     <head>
         <title>Aj's Website</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <!-- Standard includes -->
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="robots" content="index, follow">
         <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="main.css"/>
+        <link rel="stylesheet" type="text/css" href="/main.css"/>
         <!-- Bootstrap -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
               integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
@@ -19,6 +18,7 @@
         <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
         <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
         <!-- React -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <!-- Standard includes -->
     </head>
     <body>
@@ -27,7 +27,7 @@
             <div id="nav-placeholder">
             </div>
             <script>
-                $(function(){ $("#nav-placeholder").load("templates/navbar.html"); });
+                $(function(){ $("#nav-placeholder").load("/templates/navbar.html"); });
             </script>
             <!--end of Navigation bar-->
             <div class="body-margin">
@@ -42,10 +42,10 @@
                         <div class="flex-item">
                             <img alt="sis" src="images/sister.png" id="sis"
                                  class="img-fluid rounded-circle shadow-lg bg-white rounded float-left curve" />
-                            Leilani
+                            <h3>Leilani</h3>
                             <div class="desc">
                                 <p>
-                                <br/>Sister
+                                Sister
                                 <br/>Michigan
                                 <br/>Medical Student
                                 </p>
@@ -54,10 +54,10 @@
                         <div class="flex-item">
                             <img alt="dad" src="images/dad.png" id="dad"
                                  class="img-fluid rounded-circle shadow-lg bg-white rounded float-left curve" />
-                            Alfredo
+                           <h3>Alfredo</h3>
                             <div class="desc">
                                 <p>
-                                <br/>Father
+                                Father
                                 <br/>Illinois
                                 <br/>Green Thumb
                                 </p>
@@ -66,10 +66,10 @@
                         <div class="flex-item">
                             <img alt="mom" src="images/mom.png" id="mom"
                                  class="img-fluid rounded-circle shadow-lg bg-white rounded float-left curve" />
-                            Flora
+                            <h3>Flora</h3>
                             <div class="desc">
                                 <p>
-                                <br/>Mother
+                                Mother
                                 <br/>Illinois
                                 <br/>Businesswoman
                                 </p>

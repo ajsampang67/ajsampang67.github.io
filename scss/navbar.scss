@@ -4,7 +4,9 @@
   transition: all 0.5s;
 }
 .navbar a {
-  font-size: .75rem;
+  font-size: 2vw;
+  max-font-size: .5rem;
+  min-width: 20%;
   color: $mainBrandColor;
   white-space: nowrap;
 }

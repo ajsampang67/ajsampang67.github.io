@@ -1,21 +1,33 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Aj's Work In Progress</title>
+        <!-- Standard includes -->
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="robots" content="index, follow">
+        <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/main.css"/>
         <!-- Bootstrap -->
-        <title>The page you were looking for doesn't exist yet</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
               integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
               crossorigin="anonymous">
         <!-- Bootstrap -->
-        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <!-- React -->
+        <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+        <!-- React -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <!-- Standard includes -->
         <style>
             body {
-                background-color: #fff;
+                background-color: #F5F5F5;
                 color: #2E2F30;
                 font-family: sans-serif;
                 margin: 0;
             }
-            
+
             footer {
                 position: absolute;
                 bottom: 1%;
@@ -24,28 +36,28 @@
                 font-size: .6em;
                 color: #393939
             }
-            
+
             a {
                 color: #393939;
             }
-            
+
             a:hover {
                 color: #393939;
             }
-            
+
             .dialog {
                 float:right;
                 text-align: left;
                 width: 45%;
                 margin: 5% auto 0;
             }
-            
+
             h1 {
                 font-size: 5em;
                 color: #393939;
                 line-height: 1.5em;
             }
-            
+
             p {
                 font-size: 1.4em;
                 color: #393939;
@@ -55,7 +67,7 @@
                 float: inside;
                 max-width: 254px;
                 margin: 15% 0 0 5%;
-                
+
             }
             @media only screen and (max-width: 767px) {
                 .image {
@@ -70,11 +82,15 @@
             }
         </style>
     </head>
-    
     <body>
-        <!-- This file lives in public/404.html -->
-        
-        <div>
+        <!--Navigation bar-->
+        <div id="nav-placeholder">
+        </div>
+        <script>
+            $(function(){ $("#nav-placeholder").load("/templates/navbar.html"); });
+        </script>
+        <!--end of Navigation bar-->
+        <div class="body-margin">
             <div class="dialog">
                 <h1>Ah, nuts!</h1>
                 <p>You found a page still in progress. Come back again soon!</p>
@@ -82,7 +98,7 @@
                     Return Home
                 </button>
             </div>
-            <img src="../images/nuts.png" class="image">
+            <img src="/images/nuts.png" class="image">
         </div>
     </body>
 </html>
