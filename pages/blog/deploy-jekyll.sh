@@ -1,4 +1,4 @@
 #!/bin/bash
 
 jekyll build
-cp _site/blog.html ../
+cp -r _site/blog ../../

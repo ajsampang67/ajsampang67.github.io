@@ -1,6 +1,7 @@
 ---
 title: Aj's Blog
 category: index 
+permalink: /blog/home
 ---
 
 <!DOCTYPE html>
@@ -46,14 +47,16 @@ category: index
             </nav>
         </div>
         <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark">
+        {% assign featuredPost = site.posts | where:'featured','true' %}
+        {% for post in featuredPost limit:1 %}
             <div class="col-md-6 px-0">
-                <h1 class="display-4 font-italic">Title of a longer featured blog post</h1>
-                <p class="lead my-3">Multiple lines of text, informing new readers quickly and efficiently about what's most interesting in
-                    this post's contents.</p>
+                <h1 class="display-4 font-italic">{{ post.title }}</h1>
+                <p class="lead my-3">{{ post.desc }}</p>
                 <p class="lead mb-0">
-                    <a href="#" class="text-white font-weight-bold">Continue reading...</a>
+                    <a href="{{ post.url }}" class="text-white font-weight-bold">Continue reading...</a>
                 </p>
             </div>
+        {% endfor %}
         </div>
         <div class="row mb-2">
             <div class="col-md-6">
