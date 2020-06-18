@@ -21,10 +21,13 @@ html {
 
 body{
   font-family: "Varela Round", sans-serif !important;
+  background-color: $lightShades;
 }
 
 .body-margin{
-  padding-top:30%;
+  padding-top: 30%;
+  max-width: 90%;
+  margin: auto;
 }
 
 @import 'navbar';

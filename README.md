@@ -12,3 +12,10 @@ jekyll build
 
 ## As a continuous server
 jeykll serve
+
+# Directory Structure
+/
+| blog          - Blog build artifacts directory
+| pages
+    | blog      - Blog source directory. Contains `Jekyll`
+| scss          - All stylesheets
