@@ -1,19 +1,19 @@
 # ajsampang67.github.io
 Personal Website
 
-# Local Development
+## Local Development
 Run `http-server -o`
 
-# Build Stylesheet
+## Build Stylesheet
 `npm run build-css`
 
-# Build Blog posts
-jekyll build
+## Build Blog posts
+`jekyll build`
 
-## As a continuous server
-jeykll serve
+### As a continuous server
+`jeykll serve`
 
-# Directory Structure
+## Directory Structure
 /
 | blog          - Blog build artifacts directory
 | pages
