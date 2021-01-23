@@ -19,12 +19,13 @@ html {
   background-color: #F5F5F5;
 }
 
-html {
-  font-size: 100%;
-  max-width: 1200px;
-  margin: auto;
+@media (min-width: 1200px) {
+  html {
+    font-size: 100%;
+    max-width: 1200px;
+    margin: auto;
+  }
 }
-
 body {
   font-family: "Varela Round", sans-serif !important;
   background-color: #F5F5F5;
@@ -135,6 +136,11 @@ body {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+}
+
+.card-img-right {
+  max-width: 50%;
+  size: 50px;
 }
 
 /*# sourceMappingURL=main.css.map */
