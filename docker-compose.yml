@@ -9,7 +9,7 @@ services:
       - ajtheamazing_files:/home/ajsampang/ajtheamazing
     restart: always
     ports:
-      - "8080:8080"
+      - 8080:8080
 
   blog:
     depends_on:
@@ -18,7 +18,7 @@ services:
     volumes:
       - wordpress_files:/var/www/html
     ports:
-      - "8081:80"
+      - 8081:80
     restart: always
     environment:
       WORDPRESS_DB_HOST: database:3306
@@ -41,9 +41,12 @@ services:
     volumes:
       - ./webserver/templates:/etc/nginx/templates
     ports:
-      - "80:80"
+      - 80:80
     environment:
+      - NGINX_HOST=ajtheamazing.com
       - NGINX_PORT=80
+    depends_on:
+      - ajtheamazing
 
 volumes:
   ajtheamazing_files:
