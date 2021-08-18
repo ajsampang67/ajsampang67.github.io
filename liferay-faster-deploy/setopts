@@ -1,0 +1,83 @@
+#!/bin/bash
+
+buildopts() {
+	JAVA_VERSION=0
+
+	if [ "" != "$(which java 2> /dev/null)" ]; then
+		JAVA_VERSION=$(java -version 2>&1 | head -1 | cut -d'"' -f 2 | cut -d'.' -f 2)
+	fi
+
+	ANT_OPTS='-Xms4g -Xmx4g -Xss16m -Drepository.url="https://repository-cdn.liferay.com/nexus/content/groups/public"'
+
+	if [[ 8 -gt $JAVA_VERSION ]]; then
+		ANT_OPTS="${ANT_OPTS} -XX:MaxPermSize=512m"
+	else
+		ANT_OPTS="${ANT_OPTS} -Dorg.gradle.workers.max=1"
+		GRADLE_OPTS="${ANT_OPTS}"
+	fi
+
+	export ANT_OPTS GRADLE_OPTS
+}
+
+checkjava() {
+	if [ ! -d "$GIT_ROOT/portal-impl" ] || [ ! -f "$GIT_ROOT/build.properties" ]; then
+		return 0
+	fi
+
+	MINIMUM_JAVA_VERSION=$(grep javac.source "$GIT_ROOT/build.properties" | cut -d'=' -f 2 | cut -d'.' -f 2)
+
+	if [[ $MINIMUM_JAVA_VERSION -gt $JAVA_VERSION ]]; then
+		javahome $MINIMUM_JAVA_VERSION
+
+		if [ "" != "$(which java 2> /dev/null)" ]; then
+			buildopts
+		fi
+	fi
+
+	if [[ $MINIMUM_JAVA_VERSION -gt $JAVA_VERSION ]]; then
+		java -version
+
+		echo
+		echo "Please switch to JDK $MINIMUM_JAVA_VERSION or higher before building"
+
+		return 1
+	fi
+}
+
+gitroot() {
+	GIT_ROOT=$PWD
+
+	while [ ! -e "$GIT_ROOT/.git" ] && [ "/" != "$GIT_ROOT" ]; do
+		GIT_ROOT=$(dirname "$GIT_ROOT")
+	done
+
+	if [ ! -e "$GIT_ROOT/.git" ]; then
+		GIT_ROOT=
+		echo "Unable to find version control root"
+		return 1
+	fi
+}
+
+initfolder() {
+	mkdir -p $GIT_ROOT/.redeploy
+}
+
+javahome() {
+	. $(dirname ${BASH_SOURCE[0]})/javahome $@
+}
+
+if [ "" == "$USER" ]; then
+	USER=$USERNAME
+fi
+
+if [ "" == "$USER" ]; then
+	USER=$(whoami)
+fi
+
+if [ -d /usr/local/bin ] && [ "" == "$(echo $PATH | grep -F '/usr/local/bin')" ]; then
+	PATH="$PATH:/usr/local/bin"
+fi
+
+buildopts
+
+gitroot && initfolder && checkjava

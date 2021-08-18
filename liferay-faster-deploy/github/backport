@@ -1,0 +1,45 @@
+#!/bin/bash
+
+SCRIPT_FOLDER=$(dirname ${BASH_SOURCE[0]})
+
+basenames() {
+	python $(dirname ${SCRIPT_FOLDER})/basenames.py
+}
+
+dirnames() {
+	python $(dirname ${SCRIPT_FOLDER})/dirnames.py
+}
+
+generate_patch_files() {
+	mkdir -p .redeploy
+
+	git log --reverse $2 --pretty='%H' --grep=$1 > .redeploy/commits.txt
+
+	local error_state=0
+	local commit_index=0
+
+	local commit_format='%04d'
+
+	if [[ $(cat .redeploy/commits.txt | wc -l) -gt 9999 ]]; then
+		commit_format="%0$(cat .redeploy/commits.txt | wc -l | sed 's/[0-9]/0/g' | grep -o '0' | wc -l)d"
+	fi
+
+	for commit in $(cat .redeploy/commits.txt); do
+	  commit_index=$((commit_index+1))
+	  mv $(git format-patch -1 --binary ${commit}) $(printf "${commit_format}" ${commit_index})-${commit}.patch
+	done
+
+	return ${error_state}
+}
+
+apply_patch_files() {
+	ls *.patch | sort -n | xargs git am
+}
+
+if [ "" == "$2" ]; then
+	echo "Generating patch files using commits on master"
+	generate_patch_files $1 master && apply_patch_files
+else
+	echo "Generating patch files using commits on $2"
+	generate_patch_files $1 $2 && apply_patch_files
+fi

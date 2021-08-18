@@ -1,0 +1,222 @@
+#!/bin/bash
+
+checksnapshots() {
+	. $(dirname "${BASH_SOURCE[0]}")/checksnapshots
+}
+
+findgradle() {
+	echo 'Locating gradlew binary'
+
+	if [ -e $GRADLE_HOME/gradlew ]; then
+		return 0
+	fi
+
+	GRADLE_HOME=$PWD
+
+	while [ ! -e $GRADLE_HOME/gradlew ] && [ "/" != "$GRADLE_HOME" ]; do
+		GRADLE_HOME=$(dirname $GRADLE_HOME)
+	done
+
+	if [ -e $GRADLE_HOME/gradlew ]; then
+		if [[ 0 -ne $(egrep -o $'\r\n'\$ "$GRADLE_HOME/gradlew" | wc -c ) ]]; then
+			perl -pi -e 's/\r\n|\n|\r/\n/g' "$GRADLE_HOME/gradlew"
+		fi
+
+		chmod u+x $GRADLE_HOME/gradlew
+
+		return 0
+	fi
+
+	echo 'Unable to find the gradlew binary'
+
+	if [ "" != "$(which gradle 2> /dev/null)" ]; then
+		echo "Falling back to gradle on the path: $(which gradle 2> /dev/null)"
+		return 0
+	fi
+
+	return 1
+}
+
+fixdefaults() {
+	if [ -f "${GIT_ROOT}/modules/build.gradle" ] && [ "" != "$(grep -F useNpmCI "${GIT_ROOT}/modules/build.gradle")" ]; then
+		return 0
+	fi
+
+	if [ "" != "${GIT_ROOT}" ]; then
+		pushd ${GIT_ROOT} > /dev/null
+	fi
+
+	local PUBLIC_PACKAGE_JSON=$(git ls-files modules | grep -F package.json | grep -vF '/src/' | grep -c '^')
+	local PUBLIC_PACKAGE_LOCK_JSON=$(git ls-files modules | grep -F package-lock.json | grep -vF '/src/' | grep -c '^')
+
+	local PRIVATE_PACKAGE_JSON=0
+	local PRIVATE_PACKAGE_LOCK_JSON=0
+
+	if [ -f git-commit-portal ]; then
+		PRIVATE_PACKAGE_JSON=${PUBLIC_PACKAGE_JSON}
+		PRIVATE_PACKAGE_LOCK_JSON=${PUBLIC_PACKAGE_LOCK_JSON}
+
+		PUBLIC_PACKAGE_JSON=$(git ls-tree -r --name-only $(cat git-commit-portal) -- modules | grep -F package.json | grep -vF '/src/' | grep -c '^')
+		PUBLIC_PACKAGE_LOCK_JSON=$(git ls-tree -r $(cat git-commit-portal) -- modules | grep -F package-lock.json | grep -vF '/src/' | grep -c '^')
+	fi
+
+	if [[ $(expr ${PUBLIC_PACKAGE_JSON} '+' ${PRIVATE_PACKAGE_JSON}) -ne $(expr ${PUBLIC_PACKAGE_LOCK_JSON} '+' ${PRIVATE_PACKAGE_LOCK_JSON}) ]]; then
+		local PLUGINS_DEFAULTS_MAJOR_VERSION=$(grep com.liferay.gradle.plugins.defaults modules/build-buildscript.gradle | grep -o 'version: "[^"]*"' | cut -d'"' -f 2 | cut -d '.' -f 1)
+		local PLUGINS_DEFAULTS_MINOR_VERSION=$(grep com.liferay.gradle.plugins.defaults modules/build-buildscript.gradle | grep -o 'version: "[^"]*"' | cut -d'"' -f 2 | cut -d '.' -f 2)
+		local PLUGINS_DEFAULTS_PATCH_VERSION=$(grep com.liferay.gradle.plugins.defaults modules/build-buildscript.gradle | grep -o 'version: "[^"]*"' | cut -d'"' -f 3 | cut -d '.' -f 2)
+
+		if [[ ${PLUGINS_DEFAULTS_MAJOR_VERSION} -eq 5 ]] && [[ ${PLUGINS_DEFAULTS_MINOR_VERSION} -eq 3 ]] && [[ ${PLUGINS_DEFAULTS_PATCH_VERSION} -lt 29 ]]; then
+			sed -i.bak '/com.liferay.gradle.plugins.defaults/s/version: "[^"]*"/version: "5.3.29"/' ${GIT_ROOT}/modules/build-buildscript.gradle
+		fi
+	fi
+
+	if [ "" != "${GIT_ROOT}" ]; then
+		popd > /dev/null
+	fi
+}
+
+fixgradle() {
+	if [ "" == "$GIT_ROOT" ]; then
+		return
+	fi
+
+	echo 'Checking for common Gradle problems'
+
+	# undo any past deletions of settings.gradle
+
+	if [ "" != "$(git ls-files -v | grep '^h ' | cut -d' ' -f 2 | grep -F 'settings.gradle')" ]; then
+		git ls-files -v | grep '^h ' | cut -d' ' -f 2 | grep -F 'settings.gradle' | xargs git checkout
+	fi
+
+	# a settings.gradle in the parent folder can mess us up, if we're in
+	# portal source (which has a .gitrepo file)
+
+	if [ -f ../settings.gradle ] && [ -f ../.gitrepo ]; then
+		rm ../settings.gradle
+		git update-index --assume-unchanged ../settings.gradle
+	fi
+
+	# if you appear to be building to a Liferay downloaded bundle rather
+	# than a built bundle, tell the user to use the override folder
+
+	if [ "" != "$LIFERAY_HOME" ] && [ -d "$LIFERAY_HOME/osgi/marketplace" ] && [[ 0 -ne $(ls -1 $LIFERAY_HOME/osgi/marketplace | grep -F .lpkg | grep -c '^') ]]; then
+		local OVERRIDE=$LIFERAY_HOME/osgi/marketplace/override
+
+		if [ "" == "$(grep -F "$OVERRIDE" build.gradle)" ]; then
+			echo "LPKG files detected. You might be attempting to deploy to a release bundle."
+			echo "If this really is a release bundle, please add the following to build.gradle:"
+			echo -e "\n\njar.archiveName = \"$JAR_NAME\"\n\nliferay {\n\tdeployDir = \"$OVERRIDE\"\n}"
+		fi
+	fi
+
+	# if we have a "default" dependency, make sure we have the snapshot in the .m2 cache
+
+	checksnapshots
+
+	# if we are missing util-taglib.jar, some Gradle tasks will fail
+
+	local TOMCAT_VERSION=
+
+	if [ -f $GIT_ROOT/app.server.$USER.properties ]; then
+		TOMCAT_VERSION=$(grep -F app.server.tomcat.version= $GIT_ROOT/app.server.$USER.properties | cut -d'=' -f 2)
+	fi
+
+	if [ "" == "$TOMCAT_VERSION" ] && [ -f $GIT_ROOT/app.server.properties ]; then
+		TOMCAT_VERSION=$(grep -F app.server.tomcat.version= $GIT_ROOT/app.server.properties | cut -d'=' -f 2)
+	fi
+
+	if [ "" != "$GIT_ROOT" ] && [ "" != "$TOMCAT_VERSION" ] && [ -d "$GIT_ROOT/util-taglib" ] && [ ! -f $LIFERAY_HOME/tomcat-$TOMCAT_VERSION/webapps/ROOT/WEB-INF/lib/util-taglib.jar ]; then
+		echo "Deploying util-taglib.jar to $LIFERAY_HOME/tomcat-$TOMCAT_VERSION, because it may be needed in Gradle tasks"
+
+		cd $GIT_ROOT/util-taglib
+		ant deploy
+		cd -
+	fi
+
+	# If there is a yarn.lock file in the modules folder, we need to make sure to run
+	# ant setup-yarn
+
+	if [ -f $GIT_ROOT/modules/yarn.lock ] && [ ! -d $GIT_ROOT/modules/node_modules ]; then
+		cd $GIT_ROOT
+		ant setup-yarn
+		cd -
+	fi
+
+	fixdefaults
+}
+
+gw() {
+	findgradle
+
+	if [[ 0 -ne $? ]]; then
+		return 1
+	fi
+
+	. $(dirname "${BASH_SOURCE[0]}")/appserverprops
+
+	if [[ 0 -ne $? ]]; then
+		return 1
+	fi
+
+	# avoid using the CDN, because it's not reliable
+
+	if [ "" != "$(git ls-files | grep '\.gradle$' | xargs grep -Fl cdn.lfrs.sl)" ]; then
+		git ls-files | grep '\.gradle$' | xargs grep -Fl cdn.lfrs.sl | xargs sed -i.bak 's@cdn.lfrs.sl/repository@repository@g'
+	fi
+
+	local GRADLE_ARGS="--stacktrace -Drepository.url=https://repository.liferay.com/nexus/content/groups/public"
+
+	# run the gradlew binary, making sure to set GRADLE_OPTS if
+	# it is not yet set
+
+	local EXIT_CODE=0
+
+	if [ -f $GRADLE_HOME/gradlew ]; then
+		fixgradle
+
+		echo $GRADLE_HOME/gradlew $GRADLE_ARGS $@
+
+		if [ -f bnd.bnd ] && [ "" == "${JENKINS_HOME}" ] && [ "" != "$(grep -F Bundle-Version bnd.bnd | grep -F hotfix)" ]; then
+			FIX_PACKS_RELEASE_ENVIRONMENT=production JENKINS_HOME=. $GRADLE_HOME/gradlew $GRADLE_ARGS $@
+
+		else
+			$GRADLE_HOME/gradlew $GRADLE_ARGS $@
+		fi
+
+		EXIT_CODE=$?
+	else
+		gradle $GRADLE_ARGS $@
+
+		EXIT_CODE=$?
+	fi
+
+	return $EXIT_CODE
+}
+
+javahome() {
+	. $(dirname "${BASH_SOURCE[0]}")/javahome $@
+}
+
+setopts() {
+	. $(dirname "${BASH_SOURCE[0]}")/setopts
+}
+
+if [ ! -f build.gradle ]; then
+	echo "No build.gradle found"
+	exit 0
+fi
+
+setopts
+
+if [[ 8 -gt $JAVA_VERSION ]]; then
+	javahome 8
+	setopts
+fi
+
+if [ "" != "$GIT_ROOT" ]; then
+	mkdir -p $GIT_ROOT/.redeploy
+
+	cat /dev/null > $GIT_ROOT/.redeploy/gwchanges.txt
+fi
+
+time gw $@

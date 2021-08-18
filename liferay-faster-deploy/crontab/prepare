@@ -1,0 +1,334 @@
+#!/bin/bash
+
+pushd $(dirname "${BASH_SOURCE[0]}") > /dev/null
+SCRIPT_FOLDER=$(pwd -P)
+popd > /dev/null
+
+compile() {
+	echo "Starting compilation for $1"
+	GIT_HASH=$(git log -1 --pretty='%H')
+
+	rm -rf ${HOME}/.liferay/node-modules-cache
+
+	enable_marketplace_app_deployment
+	disable_javascript_fast_load
+
+	# Setup properties
+
+	echo "app.server.parent.dir=$LIFERAY_HOME" > app.server.$USER.properties
+
+	ARCHIVE_HOME="$HOME/.liferay/tomcat" \
+		$SCRIPT_FOLDER/../appserverprops
+
+	if [ "" == "$(grep -F baseline.jar.report.level build.${USER}.properties)" ]; then
+		echo -e '\nbaseline.jar.report.level=off' >> build.${USER}.properties
+	fi
+
+	# Mass change timestamps
+
+	$(dirname ${SCRIPT_FOLDER})/../githashtime
+
+	# Begin building
+
+	echo 'Git Hash:' | tee "${LIFERAY_HOME}.log"
+	echo "$GIT_HASH" | tee -a "${LIFERAY_HOME}.log"
+	echo '' | tee -a "${LIFERAY_HOME}.log"
+
+	fixdefaults
+
+	if [ -f modules/build.gradle ]; then
+		$SCRIPT_FOLDER/../skipmp | tee -a "${LIFERAY_HOME}.log"
+		$SCRIPT_FOLDER/../nodejs/cachenpm | tee -a "${LIFERAY_HOME}.log"
+	fi
+
+	$SCRIPT_FOLDER/../fixbnd
+
+	set -o pipefail
+
+	if [ "ee-6.1.x" == "${BASE_BRANCH}" ] || [ "ee-6.2.x" == "${BASE_BRANCH}" ]; then
+		ant start deploy |& tee -a "${LIFERAY_HOME}.log"
+	else
+		if [[ $1 == *-private ]]; then
+			ant setup-profile-dxp |& tee -a "${LIFERAY_HOME}.log"
+		fi
+
+		local RELEASE_FILE='release.properties'
+
+		if [ -f release.profile-dxp.properties ]; then
+			RELEASE_FILE='release.profile-dxp.properties'
+		fi
+
+		local SCHEMA_VERSION=$(grep "release.info.version=" ${RELEASE_FILE} | cut -d'=' -f 2)
+		local BUILD_NUMBER=$(grep "release.info.build=" ${RELEASE_FILE} | cut -d'=' -f 2)
+
+		echo -n 'insert into Release_ ' > sql/portal-data-release.sql
+		echo -n '(releaseId, createDate, modifiedDate, servletContextName, schemaVersion, buildNumber, verified) ' >> sql/portal-data-release.sql
+		echo -n "values (1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'portal', '${SCHEMA_VERSION}', ${BUILD_NUMBER}, FALSE);" >> sql/portal-data-release.sql
+
+		ant compile deploy |& tee -a "${LIFERAY_HOME}.log"
+	fi
+
+	EXIT_CODE=$?
+	set +o pipefail
+
+	disable_marketplace_app_deployment
+
+	if [[ $EXIT_CODE -ne 0 ]]; then
+		return $EXIT_CODE
+	fi
+
+	$SCRIPT_FOLDER/../tomcat/precompile
+	return 0
+}
+
+disable_javascript_fast_load() {
+	git ls-files | grep -F .jsp | xargs grep -Fl -- '-min.js' | xargs sed -i.bak 's/-min\.js/.js/'
+}
+
+disable_marketplace_app_deployment() {
+	if [ "ee-6.1.x" == "${BASE_BRANCH}" ]; then
+		return 0
+	fi
+
+	rm portal-impl/src/com/liferay/portal/license/util/CustomLicenseManagerImpl.java
+	sed -i.bak 's/CustomLicenseManagerImpl/DefaultLicenseManagerImpl/g' portal-impl/src/META-INF/util-spring.xml
+}
+
+enable_marketplace_app_deployment() {
+	if [ "ee-6.1.x" == "${BASE_BRANCH}" ]; then
+		return 0
+	fi
+
+	echo "Enabling Marketplace app deployment on bundle built from source..."
+
+	echo '
+package com.liferay.portal.license.util;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class CustomLicenseManagerImpl extends DefaultLicenseManagerImpl {
+	@Override
+	public int getLicenseState(Map<String, String> licenseProperties) {
+		return STATE_GOOD;
+	}
+
+	@Override
+	public Map<String, String> getLicenseProperties(String productId) {
+		Map<String, String> licenseProperties = new HashMap<String, String>();
+
+		licenseProperties.put("productVersion", String.valueOf(Integer.MAX_VALUE));
+
+		return licenseProperties;
+	}
+}
+' > portal-impl/src/com/liferay/portal/license/util/CustomLicenseManagerImpl.java
+
+	sed -i.bak 's/DefaultLicenseManagerImpl/CustomLicenseManagerImpl/g' portal-impl/src/META-INF/util-spring.xml
+}
+
+finish() {
+	if [ -d tmp/lib-pre ]; then
+		cp -R tmp/lib-pre ${LIFERAY_HOME}/osgi/
+	fi
+
+	local TOMCAT_VERSION=$(grep -F app.server.tomcat.version= app.server.properties | cut -d'=' -f 2)
+	TOMCAT_FOLDER=$LIFERAY_HOME/tomcat-${TOMCAT_VERSION}
+
+	cp tools/servers/tomcat/bin/setenv.* $TOMCAT_FOLDER/bin
+
+	for file in setenv.sh setenv.bat; do
+		sed -i.bak 's/@.*@ //g' $TOMCAT_FOLDER/bin/${file}
+
+		sed -i.bak 's/ -Xm[sx][0-9]*[gm]//g' $TOMCAT_FOLDER/bin/${file}
+		sed -i.bak 's/ -XX:NewSize=[0-9]*[gm]//g' $TOMCAT_FOLDER/bin/${file}
+		sed -i.bak 's/ -XX:MaxNewSize=[0-9]*[gm]//g' $TOMCAT_FOLDER/bin/${file}
+		sed -i.bak 's/ -XX:PermSize=[0-9]*[gm]//g' $TOMCAT_FOLDER/bin/${file}
+		sed -i.bak 's/ -XX:MaxPermSize=[0-9]*[gm]//g' $TOMCAT_FOLDER/bin/${file}
+		sed -i.bak 's/ -XX:MetaspaceSize=[0-9]*[gm]//g' $TOMCAT_FOLDER/bin/${file}
+		sed -i.bak 's/ -XX:MaxMetaspaceSize=[0-9]*[gm]//g' $TOMCAT_FOLDER/bin/${file}
+		sed -i.bak 's/ -XX:SurvivorRatio=[0-9]*//g' $TOMCAT_FOLDER/bin/${file}
+
+		local SETVAR=
+		local UNSETVAR='#'
+		local NEWLINE='\n'
+		local VARPREFIX='${'
+		local VARSUFFIX='}'
+		local PATHSEP=':'
+
+		if [ "setenv.bat" == "${file}" ]; then
+			SETVAR='set '
+			UNSETVAR='rem set '
+			NEWLINE='\r\n'
+			VARPREFIX='%'
+			VARSUFFIX='%'
+			PATHSEP=';'
+		fi
+
+		echo -en ${NEWLINE}${UNSETVAR}'JAVA_HOME=' >> $TOMCAT_FOLDER/bin/${file}
+		echo -en ${NEWLINE}${SETVAR}'PATH='${VARPREFIX}'JAVA_HOME'${VARSUFFIX}'/bin'${PATHSEP}${VARPREFIX}'PATH'${VARSUFFIX} >> $TOMCAT_FOLDER/bin/${file}
+
+		echo -en ${NEWLINE}${SETVAR}'GIT_HASH="'${GIT_HASH}'"' >> $TOMCAT_FOLDER/bin/${file}
+		echo -en ${NEWLINE}${SETVAR}'CATALINA_OPTS="'${VARPREFIX}'CATALINA_OPTS'${VARSUFFIX}' -Denv.COMPUTERNAME='$1'"' >> $TOMCAT_FOLDER/bin/${file}
+
+		if [ "ee-6.2.x" == "$BASE_BRANCH" ] || [ "ee-6.1.x" == "$BASE_BRANCH" ]; then
+			echo -en ${NEWLINE}${SETVAR}'CATALINA_OPTS="'${VARPREFIX}'CATALINA_OPTS'${VARSUFFIX}' -Xms1g -Xmx1g -XX:MaxPermSize=256m"' >> $TOMCAT_FOLDER/bin/${file}
+		else
+			echo -en ${NEWLINE}${SETVAR}'CATALINA_OPTS="'${VARPREFIX}'CATALINA_OPTS'${VARSUFFIX}' -Xms2g -Xmx2g"' >> $TOMCAT_FOLDER/bin/${file}
+		fi
+	done
+
+	if [ -f ${TOMCAT_FOLDER}/webapps/ROOT/WEB-INF/lib/support-tomcat.jar ]; then
+		mv ${TOMCAT_FOLDER}/webapps/ROOT/WEB-INF/lib/support-tomcat.jar ${TOMCAT_FOLDER}/lib/
+	fi
+
+	local BOTTOM_EXT_JSP=$TOMCAT_FOLDER/webapps/ROOT/html/common/themes/bottom-ext.jsp
+
+	cp ${SCRIPT_FOLDER}/bottom-ext.jsp ${BOTTOM_EXT_JSP}
+
+	local IMPORT_THEME_DISPLAY=$(grep -F '.ThemeDisplay"' $TOMCAT_FOLDER/webapps/ROOT/html/common/init.jsp | cut -d'"' -f 2)
+	local IMPORT_WEB_KEYS=$(grep -F '.WebKeys"' $TOMCAT_FOLDER/webapps/ROOT/html/common/init.jsp | cut -d'"' -f 2)
+
+	sed -i.bak "s/IMPORT_THEME_DISPLAY/${IMPORT_THEME_DISPLAY}/g" ${BOTTOM_EXT_JSP}
+	sed -i.bak "s/IMPORT_WEB_KEYS/${IMPORT_WEB_KEYS}/g" ${BOTTOM_EXT_JSP}
+	sed -i.bak "s/TAG_NAME/$(echo -n $1 | sed 's/-private$//g')/g" ${BOTTOM_EXT_JSP}
+
+	if [[ -f git-commit-portal ]]; then
+		sed -i.bak "s/GIT_HASH_PUBLIC/$(cat git-commit-portal | tr -d '\n')/g" ${BOTTOM_EXT_JSP}
+		sed -i.bak "s/GIT_HASH_PRIVATE/${GIT_HASH}/g" ${BOTTOM_EXT_JSP}
+	else
+		sed -i.bak "s/GIT_HASH_PUBLIC/${GIT_HASH}/g" ${BOTTOM_EXT_JSP}
+		sed -i.bak "s/GIT_HASH_PRIVATE/(not applicable)/g" ${BOTTOM_EXT_JSP}
+	fi
+
+	sed -i.bak 's/ start / jpda start /g' $TOMCAT_FOLDER/bin/startup.sh
+	sed -i.bak 's/ start / jpda start /g' $TOMCAT_FOLDER/bin/startup.bat
+
+	chmod u+x $TOMCAT_FOLDER/bin/*.sh
+
+	pushd $LIFERAY_HOME
+
+	dos2unix $TOMCAT_FOLDER/bin/setenv.sh
+	dos2unix $TOMCAT_FOLDER/bin/startup.sh
+
+	unix2dos $TOMCAT_FOLDER/bin/setenv.bat
+	unix2dos $TOMCAT_FOLDER/bin/startup.bat
+
+	if [ -d "${ARCHIVE_FOLDER}" ]; then
+		find ${ARCHIVE_FOLDER} -name "${1}-[0-9]*.tar.gz" | xargs rm
+		cp ${SCRIPT_FOLDER}/BUNDLE_NOT_PATCHABLE .
+
+		if [ "" != "$TIMESTAMP" ]; then
+			tar -zcf ${ARCHIVE_FOLDER}/${1}-${TIMESTAMP}.tar.gz *
+		else
+			tar -zcf ${ARCHIVE_FOLDER}/${1}.tar.gz *
+		fi
+	fi
+
+	if [ -d /var/www/html/logs ] && [ "" != "$TIMESTAMP" ]; then
+		rm /var/www/html/logs/$1
+		ln -s "$LIFERAY_HOME" /var/www/html/logs/$1
+	fi
+
+	popd
+
+	sed -i.bak "s@#JAVA_HOME=@JAVA_HOME=$JAVA_HOME@g" $TOMCAT_FOLDER/bin/setenv.sh
+
+	if [ "" != "$2" ]; then
+		switchport 80 $2
+	fi
+}
+
+fixdefaults() {
+	if [ "" != "$(grep -F useNpmCI modules/build.gradle)" ]; then
+		return 0
+	fi
+
+	local GRADLE_PLUGINS_DEFAULTS=$(grep com.liferay.gradle.plugins.defaults modules/build-buildscript.gradle | grep -o 'version: "[^"]*"' | cut -d'"' -f 2)
+
+	if [ "5.3" != "$(echo ${GRADLE_PLUGINS_DEFAULTS} | cut -d'.' -f 1,2)" ]; then
+		return 0
+	fi
+
+	if [[ 29 -lt $(echo ${GRADLE_PLUGINS_DEFAULTS} | cut -d'.' -f 3) ]]; then
+		return 0
+	fi
+
+	local PUBLIC_PACKAGE_JSON=$(git ls-files modules | grep -F package.json | grep -vF '/src/' | grep -c '^')
+	local PUBLIC_PACKAGE_LOCK_JSON=$(git ls-files modules | grep -F package-lock.json | grep -vF '/src/' | grep -c '^')
+
+	local PRIVATE_PACKAGE_JSON=0
+	local PRIVATE_PACKAGE_LOCK_JSON=0
+
+	if [ -f git-commit-portal ]; then
+		PRIVATE_PACKAGE_JSON=${PUBLIC_PACKAGE_JSON}
+		PRIVATE_PACKAGE_LOCK_JSON=${PUBLIC_PACKAGE_LOCK_JSON}
+
+		PUBLIC_PACKAGE_JSON=$(git ls-tree -r --name-only $(cat git-commit-portal) -- modules | grep -F package.json | grep -vF '/src/' | grep -c '^')
+		PUBLIC_PACKAGE_LOCK_JSON=$(git ls-tree -r $(cat git-commit-portal) -- modules | grep -F package-lock.json | grep -vF '/src/' | grep -c '^')
+	fi
+
+	if [[ $(expr ${PUBLIC_PACKAGE_JSON} '+' ${PRIVATE_PACKAGE_JSON}) -ne $(expr ${PUBLIC_PACKAGE_LOCK_JSON} '+' ${PRIVATE_PACKAGE_LOCK_JSON}) ]]; then
+		sed -i.bak '/com.liferay.gradle.plugins.defaults/s/version: "[^"]*"/version: "5.3.29"/' modules/build-buildscript.gradle
+	fi
+}
+
+javahome() {
+	. $SCRIPT_FOLDER/../javahome $@
+}
+
+prepare() {
+	BASE_BRANCH=ee-$(grep -F 'lp.version.major=' release.properties | cut -d'=' -f 2).x
+	JSP_JAVA_VERSION=
+
+	ANT_OPTS='-Xms4g -Xmx4g'
+
+	if [ "ee-6.1.x" == "$BASE_BRANCH" ]; then
+		export ANT_OPTS="${ANT_OPTS} -XX:MaxPermSize=512m"
+		javahome 6
+	else
+		export ANT_OPTS="${ANT_OPTS} -Dorg.gradle.workers.max=1"
+		javahome 8
+	fi
+
+	echo $JAVA_HOME
+
+	compile $1 && finish $1 $2
+
+	if [ -d "${ARCHIVE_FOLDER}" ]; then
+		if [ "" != "$TIMESTAMP" ]; then
+			cp "${LIFERAY_HOME}.log" ${ARCHIVE_FOLDER}/$1-${TIMESTAMP}.log
+		else
+			cp "${LIFERAY_HOME}.log" ${ARCHIVE_FOLDER}/$1.log
+		fi
+	fi
+}
+
+switchport() {
+	if [ "" == "$(grep JPDA_ADDRESS= $TOMCAT_FOLDER/bin/setenv.sh)" ]; then
+		echo -e "\nJPDA_ADDRESS=${1}00" >> $TOMCAT_FOLDER/bin/setenv.sh
+		echo -e "\r\nset JPDA_ADDRESS=${1}00" >> $TOMCAT_FOLDER/bin/setenv.bat
+	fi
+
+	sed -i.bak "s/\"$1/\"$2/g" $TOMCAT_FOLDER/conf/server.xml
+	sed -i.bak "s/JPDA_ADDRESS=${1}/JPDA_ADDRESS=${2}/g" $TOMCAT_FOLDER/bin/setenv.sh
+	sed -i.bak "s/JPDA_ADDRESS=${1}/JPDA_ADDRESS=${2}/g" $TOMCAT_FOLDER/bin/setenv.bat
+}
+
+if [ -z "${BUILD_FOLDER_PREFIX}" ]; then
+	echo "Please set a BUILD_FOLDER_PREFIX for the build"
+	exit 1
+fi
+
+if [ -z "${ARCHIVE_FOLDER}" ]; then
+	echo "Please set a ARCHIVE_FOLDER for the build"
+	exit 1
+fi
+
+if [ ! -z "${BUILD_FOLDER_SUFFIX}" ] && [ "/" != "$BUILD_FOLDER_SUFFIX" ]; then
+	LIFERAY_HOME="$BUILD_FOLDER_PREFIX/$1/$BUILD_FOLDER_SUFFIX"
+else
+	LIFERAY_HOME="$BUILD_FOLDER_PREFIX/$1"
+fi
+
+prepare $@

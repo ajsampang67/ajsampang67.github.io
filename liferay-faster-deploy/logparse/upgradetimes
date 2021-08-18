@@ -1,0 +1,24 @@
+#!/bin/bash
+
+gettimes() {
+	grep -v '^INFO' "$1" | grep -o 'Completed .*' | grep -vF 'com.liferay.portal.kernel.concurrent' | \
+		sed 's/ *ms$//g' | sed 's/^Completed \(\(upgrade\|verification\) process \)*//g' | sed 's/ in /,/g'
+}
+
+if [ "" == "$1" ] || [ ! -f "$1" ]; then
+	echo "$1 is not a file"
+	exit 1
+fi
+
+
+gettimes "$1" > times_old.csv
+
+if [ "" != "$2" ] && [ -f "$2" ]; then
+	gettimes "$2" > times_new.csv
+
+	python ${BASH_SOURCE[0]}.py
+
+	grep -vF '#' times_compare.csv | grep -vF ' ' | \
+		grep -vF 'UpgradeProcess_' | grep -vF 'VerifyProcessSuite' | \
+		sort -t ',' -k2,2rn > times_compare_totals.csv
+fi

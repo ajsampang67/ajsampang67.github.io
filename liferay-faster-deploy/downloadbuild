@@ -1,0 +1,569 @@
+#!/bin/bash
+
+appserverprops() {
+	. $(dirname "${BASH_SOURCE[0]}")/appserverprops
+}
+
+buildworkingdir() {
+	if [[ ${BASE_BRANCH} == *-private ]] && [ -f build-working-dir.xml ]; then
+		if [ -h modules/build.gradle ]; then
+			echo "Assuming linkprivate script is being used to keep modules up to date"
+		else
+			echo "Build downloaded, ensuring non-private modules are up to date"
+			ant -f build-working-dir.xml
+		fi
+	elif [ -d modules/private ]; then
+		if [ "" == "${BASE_TAG}" ] || [[ ${BASE_TAG} != fix-pack-de-*-7010 ]] || [[ $(echo ${BASE_TAG} | cut -d'-' -f 4) -ge 28 ]]; then
+			pushd modules/private > /dev/null
+			git clean -xdf
+			popd > /dev/null
+			rmdir modules/private
+		fi
+	fi
+}
+
+downloadbranch() {
+	SHORT_NAME=$(echo $BASE_BRANCH | sed 's/ee-//g' | sed 's/\.//g')
+	NEW_BASELINE=
+
+	downloadbranchbuild
+
+	if [ "" == "$NEW_BASELINE" ]; then
+		downloadbranchmirror
+	fi
+
+	if [ "" == "$NEW_BASELINE" ]; then
+		return 1
+	fi
+
+	if [ "" == "$(git log -1 --pretty='%H' $NEW_BASELINE 2> /dev/null)" ]; then
+		echo "Checking remotes for updates"
+
+		for remote in $(git remote); do
+			git fetch --no-tags $remote $BASE_BRANCH 2> /dev/null
+		done
+	fi
+
+	# Rebase against the acquired hash if necessary
+
+	BASE_HASH=$(git log -1 --pretty='%H' $BASE_BRANCH)
+
+	if [ "$BASE_HASH" == "$NEW_BASELINE" ]; then
+		echo "${BASE_BRANCH} matches ${NEW_BASELINE}"
+		return 0
+	fi
+
+	echo "$BASE_BRANCH does not match ${NEW_BASELINE}"
+
+	NEEDS_STASH=$(git status -s | grep -v '??')
+
+	if [ "" != "$NEEDS_STASH" ]; then
+		git stash
+	fi
+
+	if [ "$CURRENT_BRANCH" != "$BASE_BRANCH" ]; then
+		git checkout -f $BASE_BRANCH
+	fi
+
+	resetbasebranch
+
+	REBASE_STATUS=$?
+	CURRENT_HASH=$(git log -1 --pretty='%H')
+
+	if [ "$CURRENT_BRANCH" != "$BASE_BRANCH" ]; then
+		git checkout $CURRENT_BRANCH
+	fi
+
+	if [ "" != "$NEEDS_STASH" ]; then
+		git stash pop
+	fi
+
+	if [[ 0 -ne $REBASE_STATUS ]]; then
+		echo "Failed to update base branch"
+		return $REBASE_STATUS
+	fi
+}
+
+downloadbranchbuild() {
+	# Make sure there is a build on the archive mirror for our branch
+
+	if [ "" == "$BRANCH_ARCHIVE_MIRROR" ]; then
+		return 0
+	fi
+
+	# Make sure there is a build on the archive mirror for our branch
+
+	BUILD_NAME=$(getbuildname)
+
+	if [ "" == "$BUILD_NAME" ]; then
+		LOCATED_BUILD=$(find "$HOME/.liferay/builds" -name ${SHORT_NAME}*.tar.xz | sort | tail -1)
+
+		if [ "" == "$LOCATED_BUILD" ]; then
+			LOCATED_BUILD=$(find "$HOME/.liferay/builds" -name ${SHORT_NAME}*.tar.gz | sort | tail -1)
+		fi
+
+		if [ "" == "$LOCATED_BUILD" ]; then
+			echo "Could not find build for $BASE_BRANCH"
+			return 1
+		fi
+
+		BUILD_NAME=$(basename $LOCATED_BUILD)
+		NEW_BASELINE=$(getbuildhash)
+		echo "Could not find build for $BASE_BRANCH, using ${BUILD_NAME}"
+		return 0
+	fi
+
+	# Acquire the hash and make sure we have it
+
+	NEW_BASELINE=$(getbuildhash)
+
+	if [ -f "$HOME/.liferay/builds/$BUILD_NAME" ]; then
+		return 0
+	fi
+
+	# If we're going to download the new build, then delete older builds
+
+	find "$HOME/.liferay/builds/" -name "${SHORT_NAME}*.tar.gz*" -exec rm {} +
+	find "$HOME/.liferay/builds/" -name "${SHORT_NAME}*.tar.xz*" -exec rm {} +
+
+	find "$HOME/.liferay/builds/" -name "${SHORT_NAME}*.zip*" -exec rm {} +
+	find "$HOME/.liferay/builds/" -name "${SHORT_NAME}*.7z*" -exec rm {} +
+
+	# Download the build if we haven't done so already, making
+	# sure to clean up past builds to not take up too much space
+
+	echo "Downloading snapshot for $SHORT_NAME ($NEW_BASELINE)"
+	getbuild "${BRANCH_ARCHIVE_MIRROR}/${BUILD_NAME}"
+}
+
+downloadbranchmirror() {
+	local REQUEST_URL=
+	local FILES_USERNAME=$(git config --global files.username)
+	local FILES_PASSWORD=$(git config --global files.password)
+
+	if [[ "$BASE_BRANCH" == ee-* ]] || [[ "$BASE_BRANCH" == *-private ]]; then
+		if [ "" == "$LIFERAY_FILES_MIRROR" ]; then
+			if [ "" == "${FILES_USERNAME}" ] || [ "" == "${FILES_PASSWORD}" ]; then
+				return 0
+			fi
+		else
+			REQUEST_URL="$LIFERAY_FILES_MIRROR/private/ee/portal/snapshot-$BASE_BRANCH/"
+		fi
+	else
+		if [ "" != "$LIFERAY_RELEASES_MIRROR" ]; then
+			REQUEST_URL="$LIFERAY_RELEASES_MIRROR/portal/snapshot-$BASE_BRANCH/"
+		fi
+	fi
+
+	local BUILD_TIMESTAMP=
+
+	if [ "" != "${REQUEST_URL}" ]; then
+		echo "Identifying build timestamp via ${REQUEST_URL}"
+
+		BUILD_TIMESTAMP=$(curl -s --connect-timeout 2 $REQUEST_URL | grep -o '<a href="[0-9]*/">' | cut -d'"' -f 2 | sort | tail -1)
+	fi
+
+	if [ "" == "$BUILD_TIMESTAMP" ]; then
+		if [[ "$BASE_BRANCH" == ee-* ]] || [[ "$BASE_BRANCH" == *-private ]]; then
+			if [ "" == "${FILES_USERNAME}" ] || [ "" == "${FILES_PASSWORD}" ]; then
+				echo "Unable to identify build timestamp (maybe you forgot to connect to a VPN)"
+				return 1
+			fi
+
+			if [ "" != "${REQUEST_URL}" ]; then
+				echo "Failed to reach files mirror, switching to files server"
+			fi
+
+			FILES_CREDENTIALS="-u ${FILES_USERNAME}:${FILES_PASSWORD}"
+			REQUEST_URL="https://files.liferay.com/private/ee/portal/snapshot-$BASE_BRANCH/"
+		else
+			if [ "" != "${REQUEST_URL}" ]; then
+				echo "Failed to reach releases mirror, switching to releases server"
+			fi
+
+			FILES_CREDENTIALS="-u ${FILES_USERNAME}:${FILES_PASSWORD}"
+			REQUEST_URL="https://releases.liferay.com/portal/snapshot-$BASE_BRANCH/"
+		fi
+
+		echo "Identifying build timestamp via ${REQUEST_URL}"
+
+		BUILD_TIMESTAMP=$(curl -s --connect-timeout 2 $FILES_CREDENTIALS $REQUEST_URL | grep -o '<a href="[0-9]*/">' | cut -d'"' -f 2 | sort | tail -1)
+
+		if [ "" == "$BUILD_TIMESTAMP" ]; then
+			if [[ "$BASE_BRANCH" == ee-* ]] || [[ "$BASE_BRANCH" == *-private ]]; then
+				echo "Unable to identify build timestamp from files server"
+			else
+				echo "Unable to identify build timestamp from releases server"
+			fi
+
+			return 1
+		fi
+	fi
+
+	REQUEST_URL="${REQUEST_URL}${BUILD_TIMESTAMP}"
+
+	local ARTIFACT_NAME=$(curl -s --connect-timeout 2 $FILES_CREDENTIALS $REQUEST_URL | grep -o '<a href="liferay-portal-tomcat-'${BASE_BRANCH}'\.\(7z\|zip\)">' | cut -d'"' -f 2 | sort | head -1)
+
+	REQUEST_URL="${REQUEST_URL}${ARTIFACT_NAME}"
+
+	BUILD_TIMESTAMP=$(echo ${BUILD_TIMESTAMP} | cut -d'/' -f 1)
+
+	BUILD_NAME=$(echo ${ARTIFACT_NAME} | sed "s/liferay-portal-tomcat-${BASE_BRANCH}/${SHORT_NAME}-$BUILD_TIMESTAMP/g" | sed 's/[0-9][0-9][0-9][0-9].7z$/.7z/g')
+
+	if [ -f "$HOME/.liferay/builds/$BUILD_NAME" ]; then
+		NEW_BASELINE=
+
+		if [ -f $HOME/.liferay/builds/${BUILD_NAME}.githash ]; then
+			NEW_BASELINE=$(cat $HOME/.liferay/builds/${BUILD_NAME}.githash)
+		fi
+
+		return 0
+	fi
+
+	find "$HOME/.liferay/builds/" -name "${SHORT_NAME}*.tar.gz*" -exec rm {} +
+	find "$HOME/.liferay/builds/" -name "${SHORT_NAME}*.tar.xz*" -exec rm {} +
+
+	find "$HOME/.liferay/builds/" -name "${SHORT_NAME}*.zip*" -exec rm {} +
+	find "$HOME/.liferay/builds/" -name "${SHORT_NAME}*.7z*" -exec rm {} +
+
+	echo "Downloading snapshot for $SHORT_NAME"
+
+	getbuild $REQUEST_URL ${BUILD_NAME} "$FILES_CREDENTIALS"
+
+	if [[ $BUILD_NAME == *.zip ]]; then
+		if [ "" != "$(unzip -l $HOME/.liferay/builds/${BUILD_NAME} | grep -F .githash)" ]; then
+			NEW_BASELINE=$(unzip -c -qq $HOME/.liferay/builds/${BUILD_NAME} liferay-portal-${BASE_BRANCH}/.githash)
+		else
+			NEW_BASELINE=$(unzip -c -qq $HOME/.liferay/builds/${BUILD_NAME} liferay-portal-${BASE_BRANCH}/git-commit)
+		fi
+	else
+		if [ "" != "$(7z l $HOME/.liferay/builds/${BUILD_NAME} | grep -F .githash)" ]; then
+			NEW_BASELINE=$(7z -so e $HOME/.liferay/builds/${BUILD_NAME} liferay-portal-${BASE_BRANCH}/.githash)
+		else
+			NEW_BASELINE=$(7z -so e $HOME/.liferay/builds/${BUILD_NAME} liferay-portal-${BASE_BRANCH}/git-commit)
+		fi
+	fi
+
+	if [ "" != "${NEW_BASELINE}" ]; then
+		echo ${NEW_BASELINE} | tee $HOME/.liferay/builds/${BUILD_NAME}.githash
+	fi
+}
+
+downloadbuild() {
+	# Identify the base branch so we know what to fetch
+
+	gettargetfolder $@
+
+	if [[ 0 -ne $? ]]; then
+		return 1
+	fi
+
+	# If Tomcat is already running, we shouldn't proceed
+	# any further than identifying commit information.
+
+	for TOMCAT_PID in $(jps | grep Bootstrap | cut -d' ' -f 1); do
+		if [ "" != "$(ps -f $TOMCAT_PID | grep -F $LIFERAY_HOME)" ]; then
+			echo "Tomcat is already running, skipping bundle update"
+			NEW_BASELINE=$(cat "$LIFERAY_HOME/baseline.txt")
+			return 1
+		fi
+	done
+
+	if [ "" != "$BASE_TAG" ]; then
+		downloadtag && extract && buildworkingdir
+		return $?
+	elif [ "" != "$BASE_BRANCH" ]; then
+		downloadbranch && rebasebranch && extract && buildworkingdir
+		return $?
+	else
+		echo "Unable to identify base branch or tag"
+		return 1
+	fi
+}
+
+downloadtag() {
+	NEW_BASELINE=$BASE_TAG
+	BUILD_NAME=${BASE_TAG}.tar.gz
+
+	if [ -z "${TAG_ARCHIVE_MIRROR}" ]; then
+		echo "Please set a TAG_ARCHIVE_MIRROR for the build to download updated snapshots"
+	elif [ ! -f "$HOME/.liferay/builds/$BUILD_NAME" ]; then
+		echo "Downloading snapshot for $BASE_TAG"
+
+		getbuild "${TAG_ARCHIVE_MIRROR}/${BUILD_NAME}"
+	fi
+
+	if [ ! -f "$HOME/.liferay/builds/$BUILD_NAME" ]; then
+		echo "No build release archive available for $BASE_TAG"
+		return 1
+	fi
+}
+
+extract() {
+	# Figure out if we need to untar the build, based on whether the
+	# baseline hash has changed
+
+	mkdir -p "$LIFERAY_HOME"
+
+	if [[ 0 -ne $? ]]; then
+		return 1
+	fi
+
+	OLD_BASELINE=
+
+	if [ -f "$LIFERAY_HOME/baseline.txt" ]; then
+		OLD_BASELINE=$(cat "$LIFERAY_HOME/baseline.txt")
+
+		if [ "$OLD_BASELINE" == "$NEW_BASELINE" ]; then
+			echo "$LIFERAY_HOME is already up to date"
+			return 0
+		fi
+	fi
+
+	# Cleanup the folders before we untar. Only file we exclude is
+	# the Hypersonic data files if we already have them.
+
+	local EXCLUDES=
+
+	if [[ "$BUILD_NAME" == *.tar.gz ]]; then
+		pushd "${LIFERAY_HOME}" > /dev/null
+
+		if [ -d data ]; then
+			EXCLUDES="--exclude='data/hypersonic/lportal.script' --exclude='data/hypersonic/lportal.properties'"
+		fi
+
+		tar -zxf "$HOME/.liferay/builds/${BUILD_NAME}" $EXCLUDES
+
+		popd > /dev/null
+	elif [[ "$BUILD_NAME" == *.zip ]] || [[ "$BUILD_NAME" == *.7z ]]; then
+		local LIFERAY_HOME_BASENAME=$(basename "${LIFERAY_HOME}")
+		local LIFERAY_HOME_DIRNAME=$(dirname "${LIFERAY_HOME}")
+
+		pushd "${LIFERAY_HOME_DIRNAME}" > /dev/null
+
+		if [ -d "${LIFERAY_HOME_BASENAME}" ]; then
+			mv "${LIFERAY_HOME_BASENAME}" liferay-portal-${BASE_BRANCH}
+		fi
+
+		if [[ "$BUILD_NAME" == *.7z ]]; then
+			7z x "$HOME/.liferay/builds/${BUILD_NAME}"
+		else
+			unzip -qqn "$HOME/.liferay/builds/${BUILD_NAME}"
+		fi
+
+		mv liferay-portal-${BASE_BRANCH} "${LIFERAY_HOME_BASENAME}"
+
+		popd > /dev/null
+	fi
+
+	echo -n "$NEW_BASELINE" > "baseline.txt"
+}
+
+getbuild() {
+	local LOCAL_NAME=$(basename $1)
+
+	rm -f ${LOCAL_NAME}.tmp
+
+	builtin cd "$HOME/.liferay/builds/"
+
+	if [[ "$1" == s3://* ]]; then
+		aws s3 cp "$1" ${LOCAL_NAME}.tmp
+	else
+		curl -o ${LOCAL_NAME}.tmp $3 "$1"
+	fi
+
+	if [ "" != "$2" ]; then
+		mv ${LOCAL_NAME}.tmp $2
+	else
+		mv ${LOCAL_NAME}.tmp ${LOCAL_NAME}
+	fi
+
+	builtin cd -
+}
+
+getbuildhash() {
+	if [ -f "$HOME/.liferay/builds/${BUILD_NAME}.githash" ]; then
+		cat "$HOME/.liferay/builds/${BUILD_NAME}.githash"
+		return 0
+	fi
+
+	BUILD_LOG=$(echo $BUILD_NAME | cut -d'.' -f 1).log
+	UPDATE_TIME=$(echo $BUILD_NAME | cut -d'.' -f 1 | cut -d'-' -f 2)
+
+	if [[ "$BRANCH_ARCHIVE_MIRROR" == s3://* ]]; then
+		local BUCKET_NAME=$(echo $BRANCH_ARCHIVE_MIRROR | cut -d '/' -f 3)
+		local KEY_NAME=$(echo $BRANCH_ARCHIVE_MIRROR | cut -d '/' -f 4-)
+
+		aws s3api get-object --bucket $BUCKET_NAME --key $KEY_NAME/${BUILD_LOG} --range bytes=0-49 githash.txt > /dev/null
+		tail -1 githash.txt | tee "$HOME/.liferay/builds/${BUILD_NAME}.githash"
+		rm -f githash.txt
+	else
+		curl -r 0-49 -s ${BRANCH_ARCHIVE_MIRROR}/${BUILD_LOG} | tail -1 | tee "$HOME/.liferay/builds/${BUILD_NAME}.githash"
+	fi
+}
+
+getbuildname() {
+	if [[ "$BRANCH_ARCHIVE_MIRROR" == s3://* ]]; then
+		aws s3 ls $BRANCH_ARCHIVE_MIRROR/ | awk '{ print $4 }' | grep ${SHORT_NAME}'-[^"]*.tar.gz$' | sort | tail -1
+	else
+		curl -s --connect-timeout 2 $BRANCH_ARCHIVE_MIRROR/ | grep -o '<a href="'${SHORT_NAME}'-[0-9]*.tar.gz">' | cut -d'"' -f 2 | sort | tail -1
+	fi
+}
+
+gettargetfolder() {
+	CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2> /dev/null)
+
+	if [ "" == "$LIFERAY_HOME" ]; then
+		echo "Did not set LIFERAY_HOME"
+		return 1
+	fi
+
+	if isbuildbranch $1; then
+		BASE_BRANCH=$1
+		BASE_TAG=
+		return 0
+	elif isbuildbranch $CURRENT_BRANCH; then
+		BASE_BRANCH=$CURRENT_BRANCH
+		BASE_TAG=
+		return 0
+	fi
+
+	# Check for the best parent, making sure to update our tags first.
+
+	if [ "master" != "${BASE_BRANCH}" ]; then
+		updatetags
+	fi
+
+	. $(dirname "${BASH_SOURCE[0]}")/getparent
+
+	# If we're using a tag, make sure that we actually want to use that tag, given that
+	# every commit on 7.0.x corresponds to some tag.
+
+	if [ "" == "$BASE_TAG" ]; then
+		return 0
+	elif [ "master" == "$BASE_BRANCH" ] || [ "master-private" == "$BASE_BRANCH" ]; then
+		BASE_TAG=
+		return 0
+	elif [ "0" == "$1" ]; then
+		return 0
+	fi
+
+	local MAX_COMMITS=$1
+
+	if [ "" == "$MAX_COMMITS" ]; then
+		MAX_COMMITS=10
+	fi
+
+	# If they disabled tags by specifying -1, then blank out the matching tag and assume
+	# the best matching branch.
+
+	if [[ -1 -eq $MAX_COMMITS ]]; then
+		BASE_TAG=
+		return 0
+	fi
+
+	# If they didn't say, we'll try to guess based on how far away this commit is from
+	# the last tag. If it exceeds the specified threshold, we error out.
+
+	ACTUAL_COMMITS=$(git log --pretty='%H' ${BASE_TAG}..HEAD | grep -c '^')
+
+	if [[ $MAX_COMMITS -ge $ACTUAL_COMMITS ]]; then
+		return 0
+	fi
+
+	echo "There have been ${ACTUAL_COMMITS} commits on this branch compared to ${BASE_TAG}."
+	echo "If this is based on ${BASE_BRANCH}, please run 'rd -1' to auto-rebase against $BASE_BRANCH."
+	echo "If this is based on ${BASE_TAG}, please run 'rd $ACTUAL_COMMITS' to override this check."
+	echo "Also make sure that your alias for rd passes parameters (it should have $@ at the end of it)"
+
+	return 1
+}
+
+isbuildbranch() {
+	if [ "master" == "$1" ]; then
+		return 0
+	elif [ "ee-7.0.x" == "$1" ]; then
+		return 0
+	elif [ "ee-6.2.x" == "$1" ]; then
+		return 0
+	elif [ "ee-6.1.x" == "$1" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+rebasebranch() {
+	. $(dirname "${BASH_SOURCE[0]}")/rebasebranch
+}
+
+resetbasebranch() {
+	CURRENT_HASH=$(git log -1 --pretty='%H')
+
+	if [ "" == "${NEW_BASELINE}" ]; then
+		return 0
+	fi
+
+	if git merge-base --is-ancestor $CURRENT_HASH $NEW_BASELINE; then
+		git merge --ff-only $NEW_BASELINE
+		return $?
+	fi
+
+	CLOSEST_ANCESTOR=
+	CLOSEST_COUNT=$(git log --pretty='%H' ${NEW_BASELINE}..${CURRENT_HASH} | wc -l)
+
+	for remote in $(git remote); do
+		local ANCESTOR=$(git for-each-ref --format='%(refname)' refs/remotes/ | grep "/${remote}/${BASE_BRANCH}$" | cut -d'/' -f 3,4)
+
+		if [ "" == "$ANCESTOR" ]; then
+			continue
+		fi
+
+		local COUNT=$(git log --pretty='%H' ${ANCESTOR}..${CURRENT_HASH} | wc -l)
+		echo "$(git rev-parse --abbrev-ref HEAD) differs from ${ANCESTOR} by ${COUNT} commits"
+
+		if [[ $COUNT -lt $CLOSEST_COUNT ]]; then
+			CLOSEST_ANCESTOR=$ANCESTOR
+			CLOSEST_COUNT=$COUNT
+		fi
+	done
+
+	if [[ 0 -eq ${CLOSEST_COUNT} ]]; then
+		echo "Resetting $(git rev-parse --abbrev-ref HEAD) to ${BASE_BRANCH} baseline because there are no unique commits"
+		git reset --hard $NEW_BASELINE
+		return $?
+	fi
+
+	if ! git merge-base --is-ancestor $NEW_BASELINE $CURRENT_HASH; then
+		git rebase $NEW_BASELINE
+		return $?
+	fi
+}
+
+updatetags() {
+	if [ -z "${TAG_ARCHIVE_MIRROR}" ]; then
+		return 0
+	fi
+
+	if [ "" != "$(git remote -v | grep -F liferay-portal | grep -vF liferay-portal-ee)" ]; then
+		for tag_id in $(curl --connect-timeout 2 -s "${TAG_ARCHIVE_MIRROR}/tags-ce.txt"); do
+			if [ "" == "$(git tag | grep -F "$tag_id")" ]; then
+				git fetch --no-tags git@github.com:liferay/liferay-portal.git tags/${tag_id}:refs/tags/${tag_id}
+			fi
+		done
+	fi
+
+	if [ "" != "$(git remote -v | grep -F liferay-portal-ee)" ]; then
+		for tag_id in $(curl --connect-timeout 2 -s "${TAG_ARCHIVE_MIRROR}/tags.txt"); do
+			if [ "" == "$(git tag | grep -F "$tag_id")" ]; then
+				git fetch --no-tags git@github.com:liferay/liferay-portal-ee.git tags/${tag_id}:refs/tags/${tag_id}
+			fi
+		done
+	fi
+}
+
+CURRENT_HASH=$(git log -1 --pretty='%H')
+
+appserverprops
+
+downloadbuild $@

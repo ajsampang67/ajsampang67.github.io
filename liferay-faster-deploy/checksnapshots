@@ -1,0 +1,84 @@
+#!/bin/bash
+
+checksnapshots() {
+	pushd ${GIT_ROOT} > /dev/null
+	updatesnapshots
+	popd > /dev/null
+}
+
+safeant() {
+	. $(dirname "${BASH_SOURCE[0]}")/nodejs/safeant $@
+}
+
+setopts() {
+	. $(dirname "${BASH_SOURCE[0]}")/setopts
+}
+
+updatesnapshots() {
+	if [ ! -f "build.properties" ]; then
+		return 0
+	fi
+
+	if [ ! -f "build.xml" ] || [ "" == "$(grep -F setup-sdk "build.xml")" ]; then
+		safeant compile
+		return 0
+	fi
+
+	# Identify the Maven repository where we are installing artifacts
+
+	local repository_root=
+
+	if [ -f "build.$USER.properties" ]; then
+		repository_root=$(grep -F 'build.repository.local.dir=' "build.$USER.properties" | cut -d'=' -f 2 | sed 's@${project.dir}/@'$GIT_ROOT'/@g' | sed 's@${user.home}/@'$HOME'/@g')
+	fi
+
+	if [ "" == "$repository_root" ]; then
+		repository_root=$(grep -F 'build.repository.local.dir=' "build.properties" | cut -d'=' -f 2 | sed 's@${project.dir}/@'$GIT_ROOT'/@g' | sed 's@${user.home}/@'$HOME'/@g')
+	fi
+
+	if [ "" == "$repository_root" ]; then
+		repository_root="${HOME}/.m2/repository"
+	fi
+
+	echo "Checking ${repository_root} for Maven artifacts"
+
+	# Check for missing artifacts
+
+	local artifacts=
+
+	if [ -f .gradle/gradle.properties ]; then
+		artifacts=$(grep '^com\.liferay\.[^=]*\.version=' .gradle/gradle.properties | cut -d'=' -f 1 | sed 's/\.version$//g' | grep -vF 'web')
+
+		for artifact in $artifacts; do
+			local artifact_version=$(grep -F "${artifact}.version" .gradle/gradle.properties | cut -d'=' -f 2)
+			local source_folder=$(echo $artifact | cut -d'.' -f 3- | tr '.' '-')
+			local artifact_folder=${repository_root}/com/liferay/portal/${artifact}/${artifact_version}
+
+			if [ -f ${artifact_folder}/${artifact}-${artifact_version}.jar ]; then
+				echo "Found snapshot for $artifact (${artifact_version})"
+				continue
+			fi
+
+			echo "Outdated snapshot for $artifact (${artifact_version})"
+			missing_artifact="$missing_artifact $artifact"
+		done
+
+		if [ "" == "$missing_artifact" ]; then
+			return 0
+		fi
+	fi
+
+	echo "Running install-portal-snapshots to ensure all snapshots are available"
+
+	# Run the pre-checks for ant
+
+	if [ -d "modules" ]; then
+		pushd modules/core/portal-bootstrap > /dev/null
+		git clean -xdf
+		popd > /dev/null
+
+		safeant setup-sdk compile install-portal-snapshots
+	fi
+}
+
+setopts && checksnapshots

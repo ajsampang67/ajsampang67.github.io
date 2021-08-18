@@ -1,0 +1,11 @@
+#!/bin/bash
+
+. $(dirname ${BASH_SOURCE[0]})/../setopts
+$(dirname "${BASH_SOURCE[0]}")/../sourcetrie
+
+git ls-files modules | grep -F package.json > ${GIT_ROOT}/.redeploy/rush.txt
+
+python $(dirname ${BASH_SOURCE[0]})/liferayrush.py \
+	$(rush -h 2> /dev/null | grep -F 'Rush Multi-Package' | grep -o '[0-9][0-9\.]*') \
+	$(npm --version) \
+	$(node --version)

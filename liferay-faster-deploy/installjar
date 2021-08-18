@@ -1,0 +1,90 @@
+#!/bin/bash
+
+install_jar() {
+	local EXTRA_JAR="${1}/${2}.jar"
+
+	if [ -f ${EXTRA_JAR} ]; then
+		echo "Artifact ${EXTRA_JAR} already exists"
+		return 0
+	fi
+
+	if [ -d ${LIFERAY_HOME}/osgi/marketplace ]; then
+		while read -r lpkg; do
+			if [ "" != "${lpkg}" ] && [ -f "${lpkg}" ] && [ "" != "$(unzip -l "${lpkg}" | grep -F $2)" ]; then
+				return 0
+			fi
+		done <<< "$(find ${LIFERAY_HOME}/osgi/marketplace -name '*.lpkg')"
+	fi
+
+	if [ "" == "${GIT_ROOT}" ]; then
+		echo "Unable to find artifacts due to not knowing git root"
+		return 0
+	fi
+
+	if [ "" == "${BASE_BRANCH}" ]; then
+		echo "Unable to find artifacts due to not knowing base branch"
+		return 0
+	fi
+
+	local PRIVATE_REMOTE=$(git remote -v | grep -F "liferay/liferay-portal-ee" | cut -f 1 | head -1)
+	local PRIVATE_BRANCH=${BASE_BRANCH}
+
+	if [[ ${PRIVATE_BRANCH} != ee-* ]] && [[ ${PRIVATE_BRANCH} != *-private ]]; then
+		PRIVATE_BRANCH=${PRIVATE_BRANCH}-private
+	fi
+
+	local REFERENCE_HASH=${BASE_TAG}
+	local REFERENCE_HASH_PRIVATE=${BASE_TAG}
+
+	if [ "" == "${BASE_TAG}" ]; then
+		REFERENCE_HASH=${PRIVATE_REMOTE}/${BASE_BRANCH}
+		REFERENCE_HASH_PRIVATE=${PRIVATE_REMOTE}/${BASE_BRANCH}
+	fi
+
+	if [ "master" == "${BASE_BRANCH}" ]; then
+		PRIVATE_BRANCH=$(grep -F lp.version= release.properties | cut -d'=' -f 2 | sed 's/.[0-9]*$//g').x
+		REFERENCE_HASH=${PRIVATE_REMOTE}/${PRIVATE_BRANCH}
+		REFERENCE_HASH_PRIVATE=${PRIVATE_REMOTE}/${PRIVATE_BRANCH}-private
+	fi
+
+	if [[ ${REFERENCE_HASH_PRIVATE} != ee-* ]] && [[ ${REFERENCE_HASH_PRIVATE} != *-private ]]; then
+		REFERENCE_HASH_PRIVATE=${REFERENCE_HASH_PRIVATE}-private
+	fi
+
+	local ARTIFACT_PROPERTIES=$(git ls-tree -r --name-only ${REFERENCE_HASH} modules/.releng | grep -F "/$3/" | grep -F artifact.properties)
+	local ARTIFACT_URL=
+
+	if [ "" != "${ARTIFACT_PROPERTIES}" ]; then
+		ARTIFACT_URL=$(git show ${REFERENCE_HASH}:${ARTIFACT_PROPERTIES} | grep -F artifact.url | cut -d'=' -f 2)
+	else
+		ARTIFACT_PROPERTIES=$(git ls-tree -r --name-only ${REFERENCE_HASH_PRIVATE} modules/.releng | grep -F "/$3/" | grep -F artifact.properties)
+
+		if [ "" == "${ARTIFACT_PROPERTIES}" ]; then
+			return 1
+		fi
+
+		ARTIFACT_URL=$(git show ${REFERENCE_HASH_PRIVATE}:${ARTIFACT_PROPERTIES} | grep -F artifact.url | cut -d'=' -f 2)
+	fi
+
+	echo "${ARTIFACT_URL}"
+
+	if [[ ${ARTIFACT_URL} == */liferay-private-releases/* ]]; then
+		ARTIFACT_URL=$(echo ${ARTIFACT_URL} | sed 's/repository-cdn/repository/g')
+		echo "Downloading private artifact ${ARTIFACT_URL}"
+
+		local PRIVATE_USERNAME=$(git show ${PRIVATE_REMOTE}/${PRIVATE_BRANCH}:working.dir.properties | grep -F "build.repository.private.username=" | cut -d'=' -f 2)
+		local PRIVATE_PASSWORD=$(git show ${PRIVATE_REMOTE}/${PRIVATE_BRANCH}:working.dir.properties | grep -F "build.repository.private.password=" | cut -d'=' -f 2)
+
+		curl -u ${PRIVATE_USERNAME}:${PRIVATE_PASSWORD} -o ${EXTRA_JAR} ${ARTIFACT_URL}
+	else
+		echo "Downloading public artifact ${ARTIFACT_URL}"
+
+		curl -o ${EXTRA_JAR} ${ARTIFACT_URL}
+	fi
+
+	if ! unzip -l ${EXTRA_JAR} > /dev/null; then
+		rm -f ${EXTRA_JAR}
+	fi
+}
+
+install_jar $1 $2 $3

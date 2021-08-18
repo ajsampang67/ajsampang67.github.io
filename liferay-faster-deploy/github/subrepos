@@ -1,0 +1,84 @@
+#!/bin/bash
+
+subrepo() {
+	source_folder=$1
+	target_folder=$2
+	remote_location=$3
+	remote_project=$4
+
+	# Clone into correct directory and switch into it
+
+	echo "Cloning $remote_project"
+	git clone $remote_location $target_folder/$remote_project
+	pushd $target_folder/$remote_project > /dev/null
+
+	# Use hub to fork the repository
+	hub fork
+
+	# Rename the remotes to origin and upstream
+	git remote rename origin upstream
+	git remote rename $(git remote | grep -v upstream) origin
+
+	# Fix upstream
+	$(dirname ${BASH_SOURCE})/fixupstream
+
+	# Switch out of the directory we switched into
+	popd > /dev/null
+}
+
+subrepos() {
+	pushd $GIT_ROOT > /dev/null
+
+	source_folder=$PWD
+
+	if [ "" != "$1" ]; then
+		if [ ! -d $1 ] || [ ! -f $1/.gitrepo ] || [ "" == "$(grep -Fl 'mode = pull' $1/.gitrepo)" ]; then
+			echo $1 is not a subrepository
+			return 1
+		fi
+
+		remote_location=$(grep -F 'remote = ' $1/.gitrepo | cut -d'=' -f 2)
+		remote_project=$(echo "$remote_location" | cut -d'/' -f 2 | cut -d'.' -f 1)
+
+		if [ ! -d $SUBREPO_ROOT/$remote_project ]; then
+			subrepo $1 $SUBREPO_ROOT $remote_location $remote_project
+		fi
+
+		return 0
+	fi
+
+	for repo_file in $(git ls-files modules | grep -F '.gitrepo' | xargs grep -Fl 'mode = pull'); do
+		remote_location=$(grep -F 'remote = ' $repo_file | cut -d'=' -f 2)
+		remote_project=$(echo "$remote_location" | cut -d'/' -f 2 | cut -d'.' -f 1)
+
+		if [ ! -d $SUBREPO_ROOT/$remote_project ]; then
+			subrepo $source_folder $SUBREPO_ROOT $remote_location $remote_project
+		fi
+	done
+
+	popd > /dev/null
+}
+
+setopts() {
+	. $(dirname "${BASH_SOURCE[0]}")/../setopts
+}
+
+setopts
+
+if [ ! -d $GIT_ROOT/modules ]; then
+	echo 'Please run this from the portal source'
+	exit 1
+fi
+
+if [ "" == "$SUBREPO_ROOT" ]; then
+	echo 'Please specify the root folder for subrepositories'
+	exit 1
+fi
+
+if [ "" == "$(which hub 2> /dev/null)" ]; then
+	echo 'Please make sure hub is available on the path'
+	echo 'https://github.com/github/hub'
+	exit 1
+fi
+
+subrepos $1

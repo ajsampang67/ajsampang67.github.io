@@ -1,0 +1,79 @@
+#!/bin/bash
+
+dirnames() {
+	python $(dirname "${BASH_SOURCE[0]}")/dirnames.py
+}
+
+jrebel() {
+	local SCRIPT_FOLDER=$(dirname "${BASH_SOURCE[0]}")
+
+	. $(dirname "${BASH_SOURCE[0]}")/appserverprops
+
+	if [ "" == "$LIFERAY_HOME" ]; then
+		return 1
+	fi
+
+	pushd $GIT_ROOT > /dev/null
+
+	local TOMCAT_VERSION=
+
+	if [ -f app.server.$USER.properties ]; then
+		TOMCAT_VERSION=$(grep -F app.server.tomcat.version= app.server.$USER.properties | cut -d'=' -f 2)
+	fi
+
+	if [ "" == "$TOMCAT_VERSION" ]; then
+		TOMCAT_VERSION=$(grep -F app.server.tomcat.version= app.server.properties | cut -d'=' -f 2)
+	fi
+
+	local TOMCAT_FOLDER=tomcat-${TOMCAT_VERSION}
+
+	echo "Considering ant setup-jrebel..."
+
+	if [ ! -f $LIFERAY_HOME/$TOMCAT_FOLDER/webapps/ROOT/WEB-INF/classes/rebel.xml ] || [ ! -f $LIFERAY_HOME/$TOMCAT_FOLDER/lib/ext/rebel.xml ]; then
+		echo $LIFERAY_HOME/$TOMCAT_FOLDER/webapps/ROOT/WEB-INF/classes/rebel.xml
+		echo $LIFERAY_HOME/$TOMCAT_FOLDER/lib/ext/rebel.xml
+		ant setup-jrebel
+	fi
+
+	echo "Processing root level folders..."
+
+	for folder in $(ls -1); do
+		if [ -f $folder/build.xml ]; then
+			unzipportaljar $folder
+		fi
+	done
+
+	echo "Processing core and static modules..."
+
+	for file in $(find $LIFERAY_HOME/$TOMCAT_FOLDER/lib/ext -type f -name 'com.liferay.*.jar'); do
+		unziposgijar $file
+	done
+
+	for folder in core static; do
+		if [ -d $LIFERAY_HOME/osgi/$folder ]; then
+			for file in $(find $LIFERAY_HOME/osgi/$folder -type f); do
+				unziposgijar $file
+			done
+		fi
+	done
+
+	popd > /dev/null
+}
+
+setopts() {
+	. $(dirname "${BASH_SOURCE[0]}")/setopts
+}
+
+unziposgijar() {
+	LIFERAY_HOME=$LIFERAY_HOME \
+		TOMCAT_FOLDER=$TOMCAT_FOLDER \
+			$(dirname "${BASH_SOURCE[0]}")/unziposgijar $@
+}
+
+unzipportaljar() {
+	LIFERAY_HOME=$LIFERAY_HOME \
+		TOMCAT_FOLDER=$TOMCAT_FOLDER \
+			$(dirname "${BASH_SOURCE[0]}")/unzipportaljar $@
+}
+
+setopts && jrebel

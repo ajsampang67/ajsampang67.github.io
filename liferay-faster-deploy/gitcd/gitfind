@@ -1,0 +1,38 @@
+#!/bin/bash
+
+gitfind() {
+	FILE=
+	MATCHING_FILES=
+	FOLDER=
+	MATCHING_FOLDERS=
+
+	local FIND_RESULT=$(python $(dirname ${BASH_SOURCE[0]})/gitfind.py $@)
+
+	if [ "" == "$(echo "$FIND_RESULT" | grep -F ambiguous)" ]; then
+		if [ -f "$FIND_RESULT" ]; then
+			FILE=$FIND_RESULT
+			FOLDER=$(dirname "$FIND_RESULT")
+		elif [ -d "$FIND_RESULT" ]; then
+			FOLDER=$FIND_RESULT
+		else
+			echo "$FIND_RESULT"
+		fi
+
+		MATCHING_FILES=$FILE
+		MATCHING_FOLDERS=$FOLDER
+
+		return 0
+	fi
+
+	echo "$FIND_RESULT"
+
+	for result in $(echo "$FIND_RESULT" | tail -n +2); do
+		if [ -d $result ]; then
+			MATCHING_FOLDERS="${result}\n"
+		elif [ -f $result ]; then
+			MATCHING_FILES="${result}\n"
+		fi
+	done
+}
+
+gitfind $@

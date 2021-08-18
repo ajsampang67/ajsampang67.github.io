@@ -1,0 +1,92 @@
+#!/bin/bash
+
+gitcdb() {
+	if [ "" == "$1" ]; then
+		echo 'Please specify a Bundle-SymbolicName to locate'
+		return 1
+	fi
+
+	# git ls-files wants a relative path, so let's generate it
+
+	local ROOT_FOLDER=$(echo "$GIT_ROOT" | relpaths)
+
+	if [ -d "$ROOT_FOLDER/modules" ]; then
+		ROOT_FOLDER=$ROOT_FOLDER/modules
+	fi
+
+	# use git ls-files to find bnd.bnd files
+
+	local SCRATCH_FILE=$GIT_ROOT/.redeploy/bndmatches.txt
+	local needle=$(echo "$1" | sed 's/\./\\./g')
+
+	git ls-files $ROOT_FOLDER | grep -vF '/src/' | grep -F '/bnd.bnd' | xargs grep "Bundle-SymbolicName: .*${needle}.*$" | \
+		grep -vF '{' | sed 's/Bundle-SymbolicName: //g' > "$SCRATCH_FILE"
+
+	# since the filter excludes the bnd.bnd in the current folder, check for it explicitly
+
+	if [ -f bnd.bnd ]; then
+		local MATCH_NAME=$(grep "Bundle-SymbolicName: .*${needle}.*$" bnd.bnd | grep -vF '{' | sed 's/Bundle-SymbolicName: //g')
+
+		if [ "" != "$MATCH_NAME" ]; then
+			echo "bnd.bnd:$MATCH_NAME" >> "$SCRATCH_FILE"
+		fi
+	fi
+
+	# search the bnds for the symbolic name
+
+	if [[ 0 -eq $(cat "$SCRATCH_FILE" | grep -c '^') ]]; then
+		echo "Could not find Bundle-SymbolicName $1"
+		return 1
+	fi
+
+	# at this point, we know we have at least a partial match
+	# now to find out if there is an exact guess we can make
+
+	local BND=$(cat "$SCRATCH_FILE" | cut -d':' -f 1)
+
+	if [[ 1 -eq $(echo "$BND" | grep -c '^') ]]; then
+		builtin cd $(dirname $BND)
+		pwd
+		return 0
+	fi
+
+	BND=$(grep ":${needle}$" "$SCRATCH_FILE" | cut -d':' -f 1)
+
+	if [ "" != "$BND" ] && [[ 1 -eq $(echo "$BND" | grep -c '^') ]]; then
+		builtin cd $(dirname $BND)
+		pwd
+		return 0
+	fi
+
+	BND=$(grep ":.*${needle}$" "$SCRATCH_FILE" | cut -d':' -f 1)
+
+	if [ "" != "$BND" ] && [[ 1 -eq $(echo -n "$BND" | grep -c '^') ]]; then
+		builtin cd $(dirname $BND)
+		pwd
+		return 0
+	fi
+
+	BND=$(grep ":${needle}.*$" "$SCRATCH_FILE" | cut -d':' -f 1)
+
+	if [ "" != "$BND" ] && [[ 1 -eq $(echo -n "$BND" | grep -c '^') ]]; then
+		builtin cd $(dirname $BND)
+		pwd
+		return 0
+	fi
+
+	# no exact guesses possible, so report that it is ambiguous
+
+	echo "$1 is ambiguous:"
+	cat "$SCRATCH_FILE" | cut -d':' -f 2
+	return 1
+}
+
+relpaths() {
+	python $(dirname ${BASH_SOURCE[0]})/../relpaths.py
+}
+
+. "$(dirname "${BASH_SOURCE[0]}")/../setopts"
+
+if [ "" != "$GIT_ROOT" ]; then
+	gitcdb $@
+fi

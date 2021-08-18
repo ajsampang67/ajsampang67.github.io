@@ -1,0 +1,26 @@
+#!/bin/bash
+
+gitcd() {
+	FOLDER=
+	MATCHING_FOLDERS=
+
+	if git rev-parse --show-top-level 1>/dev/null 2>/dev/null; then
+		. "$(dirname "${BASH_SOURCE[0]}")/gitfind" "$*"
+	fi
+
+	if [ "" != "$FOLDER" ]; then
+		builtin cd "$FOLDER"
+		pwd
+		return 0
+	fi
+
+	if [ "" == "$MATCHING_FOLDERS" ]; then
+		builtin cd "$*"
+	fi
+}
+
+if [ "-" == "$1" ]; then
+	builtin cd -
+else
+	gitcd "$*"
+fi

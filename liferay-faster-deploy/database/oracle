@@ -1,0 +1,149 @@
+#!/bin/bash
+
+. "$(dirname ${BASH_SOURCE[0]})/common"
+
+execute_script() {
+	if [ "" == "${SYS_PASSWORD}" ]; then
+		SYS_PASSWORD=$(docker logs ${CONTAINER_NAME} | grep -F PASSWORD | cut -d':' -f 2 | sed 's/^ *//g')
+	fi
+
+	echo "${1}"
+
+	mkdir -p ${LIFERAY_HOME}/oracle
+
+	echo -e "ALTER SESSION SET \"_ORACLE_SCRIPT\"=true;\n\n${1}\n\ncommit;" > ${LIFERAY_HOME}/oracle/tmp.sql
+
+	docker exec -i ${CONTAINER_NAME} sqlplus sys/\"${SYS_PASSWORD}\"@//localhost:1521/ORCLCDB as sysdba < ${LIFERAY_HOME}/oracle/tmp.sql
+
+	rm -f ${LIFERAY_HOME}/oracle/tmp.sql
+}
+
+restorebackup() {
+	mkdir -p ${LIFERAY_HOME}/oracle
+
+	execute_script "
+create or replace directory export_lportal as '${BACKUP_FOLDER_NAME}';
+
+grant read, write on directory export_lportal to lportal;
+grant imp_full_database to lportal;"
+
+	local FILENAME=$(docker exec -i ${CONTAINER_NAME} ls -1 ${BACKUP_FOLDER_NAME} | grep -F '.dmp')
+
+	docker exec -e ORACLE_SID=ORCLCDB -i ${CONTAINER_NAME} \
+		impdp \"/ AS SYSDBA\" \
+			dumpfile=${FILENAME} \
+			directory=export_lportal \
+			logfile=import_log.txt \
+			sqlfile=ddl_dump.txt \
+			< /dev/null
+
+	local OLD_SCHEMA=$(docker exec -i ${CONTAINER_NAME} grep -o 'CREATE USER ".*"' ${BACKUP_FOLDER_NAME}/ddl_dump.txt | cut -d'"' -f 2)
+	local OLD_TABLESPACE=$(docker exec -i ${CONTAINER_NAME} grep -o 'TABLESPACE ".*"' ${BACKUP_FOLDER_NAME}/ddl_dump.txt | cut -d'"' -f 2 | sort -u)
+
+	docker exec -e ORACLE_SID=ORCLCDB -i ${CONTAINER_NAME} \
+		impdp lportal/lportal \
+			directory=export_lportal \
+			dumpfile=${FILENAME} \
+			remap_schema=${OLD_SCHEMA}:lportal \
+			tablespaces=$(echo $OLD_TABLESPACE | tr ' ' ',') \
+			$(echo "$OLD_TABLESPACE" | awk '{print "remap_tablespace=" $1 ":lportal"}' | tr '\n' ' ') \
+			exclude=INDEX table_exists_action=TRUNCATE version=${ORACLE_COMPAT_VERSION} \
+			< /dev/null
+
+	execute_script "
+revoke imp_full_database from lportal;"
+}
+
+startdatabase() {
+	if docker inspect ${CONTAINER_NAME} 1>/dev/null 2>/dev/null; then
+		echo "Using existing container ${CONTAINER_NAME}"
+		docker start ${CONTAINER_NAME}
+		return 0
+	fi
+
+	if ! docker image inspect ${ORACLE_VERSION} 1>/dev/null 2>/dev/null; then
+		echo "Please build the Oracle image for ${ORACLE_VERSION}"
+		echo 'https://github.com/oracle/docker-images'
+		return 1
+	fi
+
+	docker run --name ${CONTAINER_NAME} \
+		-e 'ORACLE_CHARACTERSET=AL32UTF8' \
+		-e 'ORACLE_PDB=orcl' \
+		--detach --expose 1521 ${ORACLE_VERSION}
+
+	waitfor_database
+
+	execute_script "
+SELECT value FROM NLS_DATABASE_PARAMETERS WHERE parameter = 'NLS_CHARACTERSET';
+
+ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME UNLIMITED;
+
+CREATE TABLESPACE lportal DATAFILE 'lportal.dbf' SIZE 64m AUTOEXTEND ON NEXT 32m MAXSIZE UNLIMITED;
+
+CREATE USER lportal IDENTIFIED BY lportal DEFAULT TABLESPACE lportal;
+GRANT create session, resource, unlimited tablespace TO lportal;
+
+CREATE UNDO TABLESPACE lportal_undo DATAFILE 'lportal_undo.dpf' SIZE 64m AUTOEXTEND ON NEXT 32m MAXSIZE UNLIMITED;
+ALTER TABLESPACE lportal_undo RETENTION GUARANTEE;
+ALTER SYSTEM SET UNDO_TABLESPACE=lportal_undo SCOPE=BOTH;"
+}
+
+updateprops() {
+	if [ "" == "${DB_HOST_NAME}" ]; then
+		DB_HOST_NAME=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER_NAME})
+		echo "Oracle database is started with IP address ${DB_HOST_NAME}"
+	fi
+
+	echo "Updating ${LIFERAY_HOME}/portal-ext.properties with database connection information"
+
+	if [ -f ${LIFERAY_HOME}/portal-ext.properties ]; then
+		if [ "" != "$(grep -F ${DB_HOST_NAME} ${LIFERAY_HOME}/portal-ext.properties | grep -vF '#')" ]; then
+			return 0
+		fi
+
+		sed -i.bak 's/^jdbc.default/#jdbc.default/g' ${LIFERAY_HOME}/portal-ext.properties
+	fi
+
+	echo "
+jdbc.default.driverClassName=oracle.jdbc.OracleDriver
+jdbc.default.url=jdbc:oracle:thin:@${DB_HOST_NAME}:1521/ORCLCDB
+jdbc.default.username=lportal
+jdbc.default.password=lportal
+" >> ${LIFERAY_HOME}/portal-ext.properties
+}
+
+waitfor_database() {
+	echo 'Waiting for database health check to pass...'
+
+	local HEALTH=$(docker inspect --format "{{json .State.Health.Status }}" ${CONTAINER_NAME} | cut -d'"' -f 2)
+
+	while [ "healthy" != "$HEALTH" ]; do
+		sleep 1
+		HEALTH=$(docker inspect --format "{{json .State.Health.Status }}" ${CONTAINER_NAME} | cut -d'"' -f 2)
+	done
+
+	echo 'Waiting for database ready message...'
+
+	while [ "" == "$(docker logs ${CONTAINER_NAME} | grep -F 'DATABASE IS READY TO USE!')" ]; do
+		sleep 1
+	done
+
+	echo 'Database startup complete!'
+}
+
+DB_TYPE='oracle'
+
+if [ "" == "${ORACLE_VERSION}" ]; then
+	ORACLE_VERSION="oracle/database:$(docker images | grep oracle/database | awk '{ print $2 }' | sort -g | tail -1)"
+fi
+
+CONTAINER_USER_NAME='oracle:dba'
+
+if [ "" == "${ORACLE_COMPAT_VERSION}" ]; then
+	ORACLE_COMPAT_VERSION=$(echo "${ORACLE_VERSION}" | cut -d':' -f 2 | cut -d'-' -f 1 | cut -d'.' -f 1,2,3)
+fi
+
+BACKUP_FOLDER_NAME='/home/oracle/backup'
+
+runcontainer $@

@@ -1,0 +1,218 @@
+#!/bin/bash
+
+getchangelog() {
+	echo '    "'${1}'": ['
+
+	git ls-tree -r --name-only upstream/${1} -- modules/ > .modules
+
+	(
+		for file in $(grep -Fh app.properties .modules); do
+			getfixes $(dirname ${file}) ${1}
+		done
+	) | sed '$s/,$//g'
+
+	rm -f .modules
+
+	echo -n '    ]'
+}
+
+getcontenttargeting() {
+	if [ ! -d ${HOME}/liferay-apps-content-targeting-ee ]; then
+		return 0
+	fi
+
+	local LATEST_TAG=
+	local LATEST_HASH=
+	local LATEST_BRANCH=
+
+	pushd ${HOME}/liferay-apps-content-targeting-ee > /dev/null
+	git fetch upstream --no-tags
+
+	if [ "7.0.x" == "${1}" ]; then
+		LATEST_TAG=$(git tag | grep '^v2\.[0-9]*\.[0-9]*$' | sed 's/^v//g' | sort -n -t '.' -k1 | tail -1)
+		LATEST_HASH=v${LATEST_TAG}
+		LATEST_BRANCH='7.0.x/2.x'
+
+		if [ "2.1.2" == "${LATEST_TAG}" ]; then
+			LATEST_TAG=2.2.0
+			LATEST_HASH=v2.2.0-rc2
+		fi
+	elif [ "7.1.x" == "${1}" ]; then
+		LATEST_TAG=$(git tag | grep '^v3\.[0-9]*\.[0-9]*$' | sed 's/^v//g' | sort -n -t '.' -k1 | tail -1)
+		LATEST_HASH=v${LATEST_TAG}
+		LATEST_BRANCH='develop'
+	else
+		popd > /dev/null
+		return 0
+	fi
+
+	echo -n '      {'
+	echo -n '"marketplace": "43707691",'
+	echo -n '"name": "Liferay Audience Targeting", '
+	echo -n '"version": "'${LATEST_TAG}'", '
+	echo -n '"path": "liferay/liferay-apps-content-targeting-ee", '
+	echo -n '"branch": "'${LATEST_BRANCH}'", '
+
+	echo -n '"releaseDate": "'$(git log -1 --pretty='%ci' ${LATEST_HASH} | awk '{ print $1 }')'", '
+
+	echo -n '"fixes": ['
+
+	local CHANGELOG=$(git log --pretty='%s' ${LATEST_HASH}..upstream/${LATEST_BRANCH} | grep -Eo '[A-Z]+-[0-9]+' | grep -vF 'LRDOCS' | grep -vF LRQA | grep -vF -- '-0' | sort -u)
+
+	if [ "" != "${CHANGELOG}" ]; then
+		echo -n "${CHANGELOG}" | awk '{ print "\"" $1 "\"" }' | tr '\n' ',' | sed 's/,$//g' | sed 's/,/, /g'
+	fi
+
+	echo -n ']'
+	echo '},'
+
+	popd > /dev/null
+}
+
+getfixes() {
+	local APPBND_FOLDER=$(echo ${1} | sed 's@\.releng/@@g')
+	local MODULE_BRANCH=${2}
+	local LIFERAY_VERSION_NUMBER="$(echo ${MODULE_BRANCH} | grep -o '[0-9]' | perl -ne 'chomp and print')10"
+	local APPBND_BRANCH=${MODULE_BRANCH}
+	local MODULE_FOLDER=${APPBND_FOLDER}
+
+	if [ "" == "$(grep -F ${APPBND_FOLDER}/app.bnd .modules)" ]; then
+		return 0
+	fi
+
+	if [ "${APPBND_FOLDER}" != "${MODULE_FOLDER}" ]; then
+		return 0
+	fi
+
+	if [ "" != "$(git show upstream/${APPBND_BRANCH}:${APPBND_FOLDER}/app.bnd | grep -F 'Liferay-Releng-Deprecated: true')" ]; then
+		return 0
+	fi
+
+	if [ "" != "$(git show upstream/${APPBND_BRANCH}:${APPBND_FOLDER}/app.bnd | grep -F 'Liferay-Releng-Marketplace: false')" ]; then
+		return 0
+	fi
+
+	if [ "" != "$(git show upstream/${APPBND_BRANCH}:${APPBND_FOLDER}/app.bnd | grep -F 'Liferay-Releng-Portal-Required: true')" ]; then
+		return 0
+	fi
+
+	local NAME=$(git show upstream/${APPBND_BRANCH}:$1/app.properties | grep -F app.marketplace.title= | cut -d'=' -f 2)
+
+	if [ "" == "${NAME}" ]; then
+		return 0
+	fi
+
+	local ID=$(git show upstream/${APPBND_BRANCH}:$1/app.properties | grep -F app.marketplace.id= | cut -d'=' -f 2)
+	local VERSION=$(git show upstream/${APPBND_BRANCH}:$1/app.properties | grep -F app.marketplace.version= | cut -d'=' -f 2)
+
+	echo -n '      {'
+	echo -n '"marketplace": "'${ID}'",'
+	echo -n '"name": "'${NAME}'", '
+
+	echo -n '"category": "'
+	git show upstream/${APPBND_BRANCH}:${APPBND_FOLDER}/app.bnd | grep -F Liferay-Releng-Category | cut -d' ' -f 2- | tr -d '\n'
+	echo -n '", '
+
+	echo -n '"labs": '
+
+	if [ "" == "$()" ]; then
+		echo -n false
+	else
+		git show upstream/${APPBND_BRANCH}:${APPBND_FOLDER}/app.bnd | grep -F Liferay-Releng-Labs | cut -d' ' -f 2-
+	fi
+
+	echo -n ', '
+
+	echo -n '"currentTags": ['
+
+	grep -F "marketplace-$(basename ${MODULE_FOLDER})-${VERSION}-${LIFERAY_VERSION_NUMBER}" marketplace-tags.txt | \
+		awk '{ print "\"" $1 "\"" }' | tr '\n' ',' | sed 's/,$//g'
+
+	echo -n '], '
+
+	echo -n '"pastTags": ['
+
+	grep "marketplace-$(basename ${MODULE_FOLDER})-[0-9]*.[0-9]*.[0-9]*-${LIFERAY_VERSION_NUMBER}" marketplace-tags.txt | \
+		grep -vF "marketplace-$(basename ${MODULE_FOLDER})-${VERSION}-${LIFERAY_VERSION_NUMBER}" | \
+		awk '{ print "\"" $1 "\"" }' | tr '\n' ',' | sed 's/,$//g'
+
+	echo -n '], '
+
+	echo -n '"carolTags": ['
+
+	grep -F "marketplace-$(basename ${MODULE_FOLDER})-${VERSION}-${LIFERAY_VERSION_NUMBER}" carol-tags.txt | \
+		awk '{ print "\"" $1 "\"" }' | tr '\n' ',' | sed 's/,$//g'
+
+	echo -n '], '
+
+	echo -n '"version": "'${VERSION}'", '
+	echo -n '"path": "'${MODULE_FOLDER}'", '
+
+	local RELEASE_HASH=
+
+	if [ "" != "$(grep -F ${1}/app.changelog .modules)" ]; then
+		RELEASE_HASH=$(git show upstream/${APPBND_BRANCH}:$1/app.changelog | grep -F app.git.id-${VERSION}= | cut -d'=' -f 2)
+
+		if [ "" == "${RELEASE_HASH}" ] || [ "" == "$(git log -1 --pretty='%H' ${RELEASE_HASH} 2> /dev/null)" ]; then
+			RELEASE_HASH=$(git log -1 --pretty='%H' upstream/${APPBND_BRANCH} -- ${1}/app.changelog)
+		fi
+
+		if [ "${APPBND_FOLDER}" != "${MODULE_FOLDER}" ]; then
+			RELEASE_HASH=$(git show ${RELEASE_HASH}:git-commit-portal-private 2> /dev/null)
+		fi
+	fi
+
+	local CHANGELOG=
+
+	if [ "" != "${RELEASE_HASH}" ] && [ "" != "$(git log -1 --pretty='%H' ${RELEASE_HASH} 2> /dev/null)" ]; then
+		echo -n '"releaseDate": "'$(git log -1 --pretty='%ci' ${RELEASE_HASH} | awk '{ print $1 }')'", '
+		CHANGELOG=$(git log --pretty='%s' ${RELEASE_HASH}..upstream/${MODULE_BRANCH} -- ${MODULE_FOLDER} | grep -Eo '[A-Z]+-[0-9]+' | grep -vF 'LRDOCS' | grep -vF LRQA | grep -vF -- '-0' | sort -u)
+	else
+		echo -n '"releaseDate": null, '
+	fi
+
+	echo -n '"fixes": ['
+
+	if [ "" != "${CHANGELOG}" ]; then
+		echo -n "${CHANGELOG}" | awk '{ print "\"" $1 "\"" }' | tr '\n' ',' | sed 's/,$//g' | sed 's/,/, /g'
+	fi
+
+	echo -n ']'
+	echo '},'
+}
+
+if [ -f ${HOME}/source/release.properties ]; then
+	cd ${HOME}/source
+fi
+
+if [ ! -f release.properties ]; then
+	echo 'Please navigate to a portal source folder first'
+	exit 1
+fi
+
+if git fetch upstream --no-tags; then
+	git ls-remote -t git@github.com:liferay/liferay-portal-ee.git | awk '{ print $2 }' |
+		grep '^refs/tags/marketplace-.*-[0-9]*10' | cut -d'/' -f 3 > marketplace-tags.txt
+
+	git ls-remote -t git@github.com:carolmoreschi/liferay-portal-ee.git | awk '{ print $2 }' |
+		grep '^refs/tags/marketplace-.*-[0-9]*10' | cut -d'/' -f 3 > carol-tags.txt
+
+	echo '{'
+	echo '  "timestamp": "'$(date)'",'
+	echo '  "changelog": {'
+
+	for branch in 7.0.x 7.1.x 7.2.x 7.3.x; do
+		if [ "7.0.x" != "${branch}" ]; then
+			echo ","
+		fi
+
+		getchangelog ${branch}
+	done
+
+	echo ''
+	echo '  }'
+	echo '}'
+
+	rm -f marketplace-tags.txt
+	rm -f carol-tags.txt
+fi
