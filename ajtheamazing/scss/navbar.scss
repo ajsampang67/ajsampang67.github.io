@@ -1,0 +1,37 @@
+.navbar {
+  vertical-align: middle;
+  background: $darkShades;
+  transition: all 0.5s;
+}
+.navbar a {
+  font-size: 2vw;
+  max-font-size: .5rem;
+  min-width: 20%;
+  color: $mainBrandColor;
+  white-space: nowrap;
+}
+
+.navbar img{
+  max-width: 30%;
+  transition: all 0.5s;
+  margin-top: .5vw;
+  margin-bottom: .5vw;
+  margin-right: 5vw;
+  border-radius: 50%;
+  -webkit-shape-outside: circle();
+  shape-outside: circle();
+}
+
+.navbar p{
+  min-height: 100px;
+  font-weight: 700;
+  line-height: 400%;
+  color: $mainBrandColor;
+  font-size:2vw;
+}
+
+.navbar.compressed {
+  background: $darkShades;
+  color: $lightAccent;
+}
+
