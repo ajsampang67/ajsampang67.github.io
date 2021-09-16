@@ -1,0 +1,17 @@
+pipeline {
+	agent any
+
+	stages { 
+		stage('SSH') {
+			steps {
+				sshagent(credentials: ['jenkins-ajtheamazingdotcom']) {
+					sh '''
+						[ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
+						ssh-keyscan -t rsa,dsa example.com >> ~/.ssh/known_hosts
+							ssh jenkins@ajtheamazing.com ...
+							'''
+				}
+			}
+		}
+	}
+}

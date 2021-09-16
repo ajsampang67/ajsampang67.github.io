@@ -32,3 +32,4 @@ alias docker-rm-all-containers='docker rm $(docker ps -a -q)'
 alias mysql-start='docker run mysql/mysql-server:5.7'
 alias kill-tomcat="pkill -9 -f 'java.*tomcat.*start'"
 alias clean-portal="rm -rf ../../data/hypersonic/* ../../osgi/state/*"
+alias jenkins-start="docker run -d -p 8085:8085 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins"
