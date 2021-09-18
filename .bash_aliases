@@ -15,6 +15,7 @@ alias cpprop='cp ~/projects/liferay/portal-ext.properties .'
 alias cpmysql='cp ~/projects/liferay/mysql.jar .'
 alias git='hub'
 alias gogo='telnet localhost 11311'
+alias gpull='git pull origin master'
 alias emptytrash='sudo rm -rf ~/.local/share/Trash/*'
 alias gh="xdg-open \`git remote -v | grep fetch | head -1 | cut -f2 | cut -d' ' -f1 | sed -e's/git@/http:\/\//' -e's/\.git$//' | sed -E 's/(\/\/[^:]*):/\1\//'\`"
 alias glog='git log -5 --graph --decorate --abbrev-commit'
