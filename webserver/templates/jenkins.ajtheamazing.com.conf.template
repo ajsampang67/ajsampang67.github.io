@@ -1,0 +1,9 @@
+server {
+  listen        80;
+  listen		[::]:80;
+  server_name   jenkins.ajtheamazing.com www.jenkins.ajtheamazing.com;
+
+  location / {
+    proxy_pass  http://45.79.192.5:8085;
+  }
+}
