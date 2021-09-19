@@ -10,6 +10,7 @@ pipeline {
 						ssh-keyscan -t rsa,dsa ajtheamazing.com >> ~/.ssh/known_hosts
 						ssh jenkins@ajtheamazing.com \'rm -rf /opt/ajtheamazingdotcom/*\'
 						scp -r ./* jenkins@ajtheamazing.com:/opt/ajtheamazingdotcom/
+						scp -r ./.env jenkins@ajtheamazing.com:/opt/ajtheamazingdotcom/
 					'''
 				}
 			}
@@ -20,7 +21,7 @@ pipeline {
 					[ -d ~/.ssh ] || mkdir ~/.ssh && chmod 0700 ~/.ssh
 					ssh-keyscan -t rsa,dsa ajtheamazing.com >> ~/.ssh/known_hosts
 					ssh jenkins@ajtheamazing.com \'cd /opt/ajtheamazingdotcom; docker-compose down\'
-					ssh jenkins@ajtheamazing.com \'cd /opt/ajtheamazingdotcom; docker-compose -p ajsampang up -d --force-recreate\'
+					ssh jenkins@ajtheamazing.com \'cd /opt/ajtheamazingdotcom; docker-compose up -d --force-recreate\'
 				'''
 			}
 		}
