@@ -11,6 +11,7 @@ pipeline {
 						ssh jenkins@ajtheamazing.com \'rm -rf /opt/ajtheamazingdotcom/*\'
 						scp -r ./* jenkins@ajtheamazing.com:/opt/ajtheamazingdotcom/
 						scp -r ./.env jenkins@ajtheamazing.com:/opt/ajtheamazingdotcom/
+						ssh jenkins@ajtheamazing.com \'cd /opt/ajtheamazingdotcom/ajtheamazing; sudo npm install\'
 						ssh jenkins@ajtheamazing.com \'cd /opt/ajtheamazingdotcom/ajtheamazing; docker build -t ajtheamazing . --no-cache\'
 					'''
 				}
