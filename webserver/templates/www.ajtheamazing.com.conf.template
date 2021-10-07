@@ -1,9 +1,31 @@
 server {
-  listen        80;
-  listen		[::]:80;
-  server_name   ajtheamazing.com www.ajtheamazing.com;
+	listen      80;
+	listen		[::]:80;
+	server_name   ajtheamazing.com www.ajtheamazing.com;
 
-  location / {
-    proxy_pass  http://45.79.192.5:8080;
-  }
+	location / {
+		proxy_pass  http://45.79.192.5:8080;
+	}
+}
+
+server {
+	listen 443 ssl default_server;
+	server_name ajtheamazing.com www.ajtheamazing.com
+	expires 1y;
+	ssl_certificate    /etc/letsencrypt/live/ajtheamazing.com/fullchain.pem;
+	ssl_certificate_key    /etc/letsencrypt/live/ajtheamazing.com/privkey.pem;
+
+	location / {
+		proxy_pass  http://45.79.192.5:8080;
+		proxy_http_version 1.1;
+		proxy_set_header X-Forwarded-Host $host;
+		proxy_set_header X-Forwarded-Server $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header Host $http_host;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "Upgrade";
+		proxy_pass_request_headers on;
+	}
 }

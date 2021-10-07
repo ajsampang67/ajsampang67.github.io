@@ -1,0 +1,17 @@
+services:
+  webserver:
+    container_name: webserver
+    build:
+      network: host
+      context: ./
+      args:
+          - CERTBOT_EMAIL=ajsampang67@gmail.com
+          - DOMAIN_LIST=ajtheamazing.com,www.ajtheamazing.com,blog.ajtheamazing.com
+    volumes:
+      - ./templates:/etc/nginx/templates
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - NGINX_HOST=ajtheamazing.com
+      - NGINX_PORT=80
