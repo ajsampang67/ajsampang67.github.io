@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert --volumes hostPath
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: database
+  name: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert --volumes hostPath
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: database
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+              value: wordpress
+            - name: MYSQL_PASSWORD
+              value: ajMysql67
+            - name: MYSQL_ROOT_PASSWORD
+              value: ajMysql67
+            - name: MYSQL_USER
+              value: wordpress
+          image: mysql:5.7
+          name: database
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: database-data
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /home/ajsampang
+          name: database-data
+status: {}
