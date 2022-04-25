@@ -1,8 +1,9 @@
+version: '3.3'
 services:
   webserver:
     container_name: webserver
+    network_mode: host
     build:
-      network: host
       context: ./
       args:
           - CERTBOT_EMAIL=ajsampang67@gmail.com

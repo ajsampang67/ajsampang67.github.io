@@ -1,2 +1,11 @@
 .bash_history
 .viminfo
+.npm
+.ssh
+.kube
+.gitconfig
+.bash_profile
+.docker
+.vim
+.bash_aliases
+.vim/
