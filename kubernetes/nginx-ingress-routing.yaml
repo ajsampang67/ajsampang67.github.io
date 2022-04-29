@@ -1,0 +1,53 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-ajtheamazing
+spec:
+  rules:
+  - host: www.ajtheamazing.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ajtheamazing
+            port:
+              number: 8080
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-blog
+spec:
+  rules:
+  - host: blog.ajtheamazing.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: blog
+            port:
+              number: 80
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-jenkins
+spec:
+  rules:
+  - host: jenkins.ajtheamazing.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jenkins
+            port:
+              number: 8085
+  ingressClassName: nginx
