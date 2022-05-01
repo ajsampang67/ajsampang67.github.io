@@ -5,6 +5,7 @@ metadata:
 spec:
   ports:
   - port: 3306
+    targetPort: 3306
   selector:
     app: database 
   clusterIP: None
@@ -12,28 +13,19 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert --volumes hostPath
-    kompose.version: 1.26.0 (40646f47)
-  creationTimestamp: null
   labels:
-    io.kompose.service: database
+    app: database
   name: database
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: database
+      app: database
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert --volumes hostPath
-        kompose.version: 1.26.0 (40646f47)
-      creationTimestamp: null
       labels:
-        io.kompose.service: database
+        app: database
     spec:
       containers:
         - env:
@@ -47,14 +39,13 @@ spec:
               value: wordpress
           image: mysql:5.7
           name: database
-          resources: {}
+          ports:
+            - containerPort: 3306
+              name: database
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: mysql-persistent-storage 
-      restartPolicy: Always
       volumes:
       - name: mysql-persistent-storage
         persistentVolumeClaim:
           claimName: mysql-pv-claim
-
-status: {}

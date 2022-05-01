@@ -27,22 +27,21 @@ spec:
       containers:
         - env:
             - name: WORDPRESS_DB_HOST
-              value: database:3306
+              value: database
             - name: WORDPRESS_DB_PASSWORD
               value: ajMysql67
             - name: WORDPRESS_DB_USER
               value: wordpress
-          image: wordpress:latest
+          image: wordpress:5.9.3-apache
           name: blog
           ports:
             - containerPort: 80
           resources: {}
           volumeMounts:
-            - mountPath: /var/www/html
-              name: wordpress-files
-      restartPolicy: Always
+            - name: wordpress-persistent-storage
+              mountPath: /var/www/html
       volumes:
-        - hostPath:
-            path: /home/ajsampang
-          name: wordpress-files
-status: {}
+        - name: wordpress-persistent-storage
+          persistentVolumeClaim:
+            claimName: wp-pv-claim
+
