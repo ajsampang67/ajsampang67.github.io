@@ -2,7 +2,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-ajtheamazing
+  annotations:
+    kubernetes.io/ingress.class: "nginx"    
+    cert-manager.io/issuer: "letsencrypt-prod"
 spec:
+  tls:
+  - hosts:
+    - ajtheamazing.com
+    - www.ajtheamazing.com
+    secretName: ajtheamazing-tls
   rules:
   - host: www.ajtheamazing.com
     http:
@@ -30,7 +38,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-blog
+  annotations:
+    kubernetes.io/ingress.class: "nginx"    
+    cert-manager.io/issuer: "letsencrypt-prod"
 spec:
+  tls:
+  - hosts:
+    - blog.ajtheamazing.com
+    secretName: blog-tls
   rules:
   - host: blog.ajtheamazing.com
     http:
@@ -48,7 +63,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-jenkins
+  annotations:
+    kubernetes.io/ingress.class: "nginx"    
+    cert-manager.io/issuer: "letsencrypt-prod"
 spec:
+  tls:
+  - hosts:
+    - jenkins.ajtheamazing.com
+    secretName: jenkins-tls
   rules:
   - host: jenkins.ajtheamazing.com
     http:
