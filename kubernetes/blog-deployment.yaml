@@ -1,28 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert --volumes hostPath
-    kompose.version: 1.26.0 (40646f47)
-  creationTimestamp: null
+  name: blog-deployment
   labels:
-    io.kompose.service: blog
-  name: blog
+    app: blog
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: blog
+      app: blog
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert --volumes hostPath
-        kompose.version: 1.26.0 (40646f47)
-      creationTimestamp: null
       labels:
-        io.kompose.service: blog
+        app: blog
     spec:
       containers:
         - env:
@@ -36,7 +28,6 @@ spec:
           name: blog
           ports:
             - containerPort: 80
-          resources: {}
           volumeMounts:
             - name: wordpress-persistent-storage
               mountPath: /var/www/html
@@ -44,4 +35,44 @@ spec:
         - name: wordpress-persistent-storage
           persistentVolumeClaim:
             claimName: wp-pv-claim
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: blog
+  name: blog
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: blog
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: wp-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/wordpress"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wp-pv-claim
+  labels:
+    app: blog
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi

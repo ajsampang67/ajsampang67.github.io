@@ -1,41 +1,73 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert --volumes hostPath
-    kompose.version: 1.26.0 (40646f47)
-  creationTimestamp: null
-  labels:
-    io.kompose.service: ajtheamazing
-  name: ajtheamazing
+  name: ajtheamazing-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: ajtheamazing
+      app: ajtheamazing
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert --volumes hostPath
-        kompose.version: 1.26.0 (40646f47)
-      creationTimestamp: null
       labels:
-        io.kompose.service: ajtheamazing
+        app: ajtheamazing
     spec:
       containers:
         - image: ajsampang67/ajtheamazing
           name: ajtheamazing
           ports:
             - containerPort: 8080
-          resources: {}
           volumeMounts:
             - mountPath: /home/ajsampang/ajtheamazing
               name: ajtheamazing-files
       restartPolicy: Always
       volumes:
-        - hostPath:
-            path: /home/ajsampang
-          name: ajtheamazing-files
-status: {}
+        - name: ajtheamazing-files
+          persistentVolumeClaim:
+            claimName: ajtheamazing-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ajtheamazing-service
+  labels:
+    app: ajtheamazing
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: ajtheamazing
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ajtheamazing-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/ajtheamazing"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ajtheamazing-pvc
+  labels:
+    app: ajtheamazing
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
