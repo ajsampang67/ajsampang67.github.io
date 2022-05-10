@@ -1,4 +1,9 @@
 # To start
+- `cd kubernetes`
+- `kubernetes apply -f .`
+- Start cert manager via command in README
+
+# [DEPRECATED] To start docker-compose 
 docker-compose up
 
 # Notes
