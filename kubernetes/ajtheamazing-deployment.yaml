@@ -15,7 +15,7 @@ spec:
         app: ajtheamazing
     spec:
       containers:
-        - image: ajsampang67/ajtheamazing
+        - image: ajsampang67/ajtheamazing:1.0
           name: ajtheamazing
           ports:
             - containerPort: 8080
