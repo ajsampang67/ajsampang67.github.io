@@ -5,13 +5,13 @@
 }
 .navbar a {
   font-size: 2vw;
-  max-font-size: .5rem;
   min-width: 20%;
   color: $mainBrandColor;
   white-space: nowrap;
 }
 
 .navbar img{
+  vertical-align: middle;
   max-width: 30%;
   transition: all 0.5s;
   margin-top: .5vw;
@@ -23,11 +23,11 @@
 }
 
 .navbar p{
-  min-height: 100px;
-  font-weight: 700;
-  line-height: 400%;
+  padding: 5%;
+  vertical-align: middle;
+  line-height: 300%;
   color: $mainBrandColor;
-  font-size:2vw;
+  font-size: 2.5vw;
 }
 
 .navbar.compressed {
