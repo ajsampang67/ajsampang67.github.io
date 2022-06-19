@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: blog-deployment
+  name: {{ .Chart.Name }}
   labels:
-    app: blog
+    app: {{ .Chart.Name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: blog
+      app: {{ .Chart.Name }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: blog
+        app: {{ .Chart.Name }}
     spec:
       containers:
         - env:
@@ -24,8 +24,8 @@ spec:
               value: ajMysql67
             - name: WORDPRESS_DB_USER
               value: wordpress
-          image: wordpress:5.9.3-apache
-          name: blog
+          image: {{ Values.blog.image }}
+          name: {{ .Chart.Name }}
           ports:
             - containerPort: 80
           volumeMounts:
@@ -34,24 +34,24 @@ spec:
       volumes:
         - name: wordpress-persistent-storage
           persistentVolumeClaim:
-            claimName: wp-pv-claim
+            claimName: {{ .Chart.Name }}-pv
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: blog
-  name: blog
+    app: {{ .Chart.Name }}
+  name: {{ .Chart.Name }}
 spec:
   ports:
-    - port: 80
+    - port: {{ .Values.blog.port }}
   selector:
-    app: blog
+    app: {{ .Chart.Name }}
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: wp-pv-volume
+  name: {{ .Chart.Name }}-pv
   labels:
     type: local
 spec:
@@ -66,9 +66,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: wp-pv-claim
+  name: {{ .Chart.Name }}-pvc
   labels:
-    app: blog
+    app: {{ .Chart.Name }}
 spec:
   storageClassName: manual
   accessModes:

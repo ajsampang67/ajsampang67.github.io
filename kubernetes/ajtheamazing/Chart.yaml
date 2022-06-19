@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: "1.1"
+description: Ajtheamazingdotcom Chart
+name: ajtheamazing
+version: 1.0.0
+

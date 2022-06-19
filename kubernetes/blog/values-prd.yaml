@@ -1,0 +1,3 @@
+blog:
+  image: wordpress:5.9.3-apache
+  port: 80

@@ -1,52 +1,52 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ajtheamazing-deployment
+  name: {{ .Chart.Name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ajtheamazing
+      app: {{ .Chart.Name }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: ajtheamazing
+        app: {{ .Chart.Name }}
     spec:
       containers:
-        - image: ajsampang67/ajtheamazing:1.1
-          name: ajtheamazing
+        - image: {{ .Values.ajtheamazing.image }}
+          name: {{ .Chart.Name }}
           ports:
             - containerPort: 8080
           volumeMounts:
             - mountPath: /home/ajsampang/ajtheamazing
-              name: ajtheamazing-files
+              name: {{ .Chart.Name }}-files
       restartPolicy: Always
       volumes:
-        - name: ajtheamazing-files
+        - name: {{ .Chart.Name }}-files
           persistentVolumeClaim:
-            claimName: ajtheamazing-pvc
+            claimName: {{ .Chart.Name }}-pvc
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: ajtheamazing-service
+  name: {{ .Chart.Name }}
   labels:
-    app: ajtheamazing
+    app: {{ .Chart.Name }}
 spec:
   ports:
-    - name: "8080"
-      port: 8080
-      targetPort: 8080
+    - name: {{ .Chart.Name }}
+      port: {{ .Values.ajtheamazing.port }}
+      targetPort: {{ .Values.ajtheamazing.port }}
   selector:
-    app: ajtheamazing
+    app: {{ .Chart.Name }}
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: ajtheamazing-pv
+  name: {{ .Chart.Name }}-pv
   labels:
     type: local
 spec:
@@ -61,9 +61,9 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ajtheamazing-pvc
+  name: {{ .Chart.Name }}-pvc
   labels:
-    app: ajtheamazing
+    app: {{ .Chart.Name }}
 spec:
   storageClassName: manual
   accessModes:
