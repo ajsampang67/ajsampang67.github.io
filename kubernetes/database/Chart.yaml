@@ -1,5 +1,0 @@
-apiVersion: v2
-appVersion: "1.0"
-description: Database Chart
-name: database
-version: 1.0.0

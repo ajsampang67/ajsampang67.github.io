@@ -7,6 +7,6 @@ then
 fi
 
 helm upgrade --install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace
-helm upgrade --install database database/ database/values-$1.yaml
+helm upgrade --install database bitnami/mysql -f database/values-$1.yaml 
 helm upgrade --install ajtheamazing dxp/ -f ajtheamazing/values-$1.yaml
 helm upgrade --install blog dxp/ -f blog/values-$1.yaml
