@@ -19,22 +19,22 @@ spec:
       containers:
         - env:
             - name: WORDPRESS_DB_HOST
-              value: database
+              value: database-mysql
             - name: WORDPRESS_DB_PASSWORD
               value: ajMysql67
             - name: WORDPRESS_DB_USER
               value: wordpress
-          image: {{ Values.blog.image }}
+          image: {{ .Values.blog.image }}
           name: {{ .Chart.Name }}
           ports:
             - containerPort: 80
           volumeMounts:
-            - name: wordpress-persistent-storage
+            - name: wordpress-pvc
               mountPath: /var/www/html
       volumes:
-        - name: wordpress-persistent-storage
+        - name: wordpress-pvc
           persistentVolumeClaim:
-            claimName: {{ .Chart.Name }}-pv
+            claimName: {{ .Chart.Name }}-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -49,30 +49,15 @@ spec:
     app: {{ .Chart.Name }}
 ---
 apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: {{ .Chart.Name }}-pv
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 2Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/mnt/wordpress"
----
-apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ .Chart.Name }}-pvc
   labels:
     app: {{ .Chart.Name }}
 spec:
-  storageClassName: manual
+  storageClassName: "longhorn"
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 10Gi
