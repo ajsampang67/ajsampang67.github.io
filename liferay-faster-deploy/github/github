@@ -1,7 +1,0 @@
-#!/bin/bash
-
-github() {
-	python "$(dirname "${BASH_SOURCE[0]}")/github.py" $@
-}
-
-github $@

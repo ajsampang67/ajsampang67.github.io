@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Adapted from https://gist.github.com/drewbrokke/6c8433d16aa90eb63f1e319211fc40e9
-
-curl -s "https://github.com/orgs/liferay/people?query=$(echo $@ | tr ' ' '+')" | \
-	grep -o 'id="member-[^"]*' | sed 's/id="member-//g'
