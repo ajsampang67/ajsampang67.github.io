@@ -11,3 +11,4 @@
 .vim/
 ajtheamazing/node_modules
 .vimrc
+kubernetes/blog/.env.db.credentials

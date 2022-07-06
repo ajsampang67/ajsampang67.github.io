@@ -1,0 +1,6 @@
+secretGenerator:
+- name: "db-credentials"
+  envs:
+  - .env.db.credentials
+generatorOptions:
+  disableNameSuffixHash: true
