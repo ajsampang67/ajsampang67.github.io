@@ -5,7 +5,7 @@ Personal Website
 - Node version v16.15.0
 
 ## Local Development
-Run `http-server -o`
+`npm run dev`
 
 ## Build Stylesheet
 `npm run build-css`
@@ -19,9 +19,12 @@ Run `http-server -o`
 
 # Docker
 ## Building docker image
-sudo docker build -t ajtheamazing .
+docker build -t ajtheamazing .
 
-## Tagging new Docker image 
+## Running Docker image locally
+docker run -p 80:8080 ajtheamazing 
+
+## Tagging new Docker image for push
 docker tag <Docker image ID> docker.io/ajsampang67/ajtheamazing:<Version>
 
 ## Pushing new Docker image tag

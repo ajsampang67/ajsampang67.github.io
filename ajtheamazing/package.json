@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-css": "sass --watch scss/main.scss:main.css",
-    "start": "concurrently \"http-server\" && \"npm run build-css\""
+    "dev": "concurrently \"http-server\" && \"npm run build-css\"",
+    "start": "http-server"
   },
   "repository": {
     "type": "git",
@@ -20,13 +21,12 @@
   "homepage": "https://github.com/ajsampang67/ajsampang67.github.io#readme",
   "dependencies": {
     "bootstrap": "latest",
-    "concurrently": "latest",
-    "http-server": "latest",
     "minimist": ">1.2.3",
-    "node-sass": "latest"
+    "http-server": "^14.1.1"
   },
   "devDependencies": {
-    "concurrently": "latest",
-    "http-server": "latest"
+    "concurrently": "^8.2.0",
+    "http-server": "^14.1.1",
+    "node-sass": "latest"
   }
 }
