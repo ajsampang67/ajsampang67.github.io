@@ -53,9 +53,10 @@ body {
 
 .navbar a {
   font-size: 2vw;
-  min-width: 20%;
+  min-width: 10%;
   color: #69CAC5;
-  white-space: nowrap; }
+  white-space: nowrap;
+  margin: .5vw; }
 
 .navbar img {
   vertical-align: middle;
@@ -97,7 +98,6 @@ body {
   shape-outside: circle(); }
 
 #jumbotron-family .desc {
-  font-family: 'Kalam', monospace;
   font-size: 100%;
   max-height: 15vw;
   min-height: 2vw; }
@@ -122,14 +122,46 @@ body {
 #jumbotron-uiuc h1 {
   font-size: 5em;
   font-weight: 700;
-  /**
-  color: $ILOrange;
-  -webkit-text-stroke-color: $ILBlue;
-  **/
   -webkit-text-stroke-color: #E84A27;
   -webkit-text-stroke-width: thin; }
 
 .uiuc-flex {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; }
+
+#jumbotron-liferay {
+  font-family: Roboto, sans-serif;
+  background-color: #F5F5F5;
+  color: #0363cf; }
+
+.liferay-flex {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; }
+
+#jumbotron-alyssa {
+  font-family: "Varela Round", sans-serif;
+  background-color: #F5F5F5;
+  color: #3EB489; }
+
+#jumbotron-alyssa h1 {
+  font-family: "Varela Round", sans-serif;
+  font-size: 3.5em;
+  -webkit-text-stroke-color: 3EB489;
+  -webkit-text-stroke-width: thin; }
+
+.alyssa-flex {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; }
+
+#jumbotron-deloitte {
+  font-family: Roboto, sans-serif;
+  background-color: #F5F5F5;
+  color: #80c33f; }
+
+.deloitte-flex {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap; }

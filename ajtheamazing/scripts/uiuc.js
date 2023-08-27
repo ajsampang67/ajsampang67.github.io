@@ -1,8 +1,9 @@
 let uiucFlex = document.querySelector('.uiuc-flex');
-const gradNini = {id: 'grad-sis', src: 'images/grad-sis.png'}
-const me = {id: 'grad-me', src: 'images/grad-me.png'}
-const parents = {id: 'grad-parents', src: 'images/grad-parents.png'}
-let images = [gradNini, me, parents];
+const gradNini = {id: 'grad-sis', src: 'images/uiuc/grad-sis.png'}
+const me = {id: 'grad-me', src: 'images/uiuc/grad-me.png'}
+const parents = {id: 'grad-parents', src: 'images/uiuc/grad-parents.png'}
+const ally = {id: 'grad-alyssa', src: 'images/uiuc/grad-ally.jpg'}
+let images = [gradNini, ally, me, parents];
 
 // Create an HTML string
 let gradHtml = '';

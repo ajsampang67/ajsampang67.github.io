@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-css": "sass --watch scss/main.scss:main.css",
-    "dev": "concurrently \"http-server\" && \"npm run build-css\"",
+    "dev": "concurrently \"npm run build-css\" \"http-server\"",
     "start": "http-server"
   },
   "repository": {
