@@ -1,4 +1,4 @@
-let uiucFlex = document.querySelector('.uiuc-flex');
+let uiucFlex = document.querySelector('#uiuc');
 const gradNini = {id: 'grad-sis', src: 'images/uiuc/grad-sis.png'}
 const me = {id: 'grad-me', src: 'images/uiuc/grad-me.png'}
 const parents = {id: 'grad-parents', src: 'images/uiuc/grad-parents.png'}

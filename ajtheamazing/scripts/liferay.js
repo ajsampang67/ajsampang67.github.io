@@ -1,4 +1,4 @@
-let liferayFlex = document.querySelector('.liferay-flex');
+let liferayFlex = document.querySelector('#liferay');
 const liferay1 = {id: 'liferay1', src: 'images/liferay/liferay1.jpg'}
 const liferay2 = {id: 'liferay2', src: 'images/liferay/liferay2.jpg'}
 const liferay3 = {id: 'liferay3', src: 'images/liferay/liferay3.jpg'}

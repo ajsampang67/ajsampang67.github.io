@@ -1,4 +1,4 @@
-let deloitteFlex = document.querySelector('.deloitte-flex');
+let deloitteFlex = document.querySelector('#deloitte');
 const deloitte1 = {id: 'deloitte1', src: 'images/deloitte/d1.jpg'}
 const deloitte2 = {id: 'deloitte2', src: 'images/deloitte/d2.jpg'}
 const deloitte3 = {id: 'deloitte3', src: 'images/deloitte/d3.jpg'}

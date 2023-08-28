@@ -80,15 +80,30 @@ body {
   background: #2B4B5E;
   color: #A4ABAB; }
 
-#jumbotron-family {
-  color: #69CAC5;
-  background-color: #F5F5F5; }
+.flex {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; }
+
+img#header {
+  height: 100%;
+  max-width: 40vw; }
 
 .flex-item img {
   max-width: 20vw;
   min-width: 5vw;
   transition: all 0.5s;
   margin: .5em 5em .5em .5em; }
+
+.flex-item {
+  vertical-align: center;
+  text-align: left;
+  flex: 1;
+  max-width: 20vw; }
+
+#jumbotron-family {
+  color: #69CAC5;
+  background-color: #F5F5F5; }
 
 #jumbotron-family .curve {
   float: left;
@@ -102,18 +117,6 @@ body {
   max-height: 15vw;
   min-height: 2vw; }
 
-.family-flex {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap; }
-
-.flex-item {
-  vertical-align: center;
-  text-align: left;
-  flex: 1;
-  max-width: 20vw;
-  min-width: 225px; }
-
 #jumbotron-uiuc {
   font-family: adobe-garamond-pro, serif;
   background-color: #F5F5F5;
@@ -125,20 +128,10 @@ body {
   -webkit-text-stroke-color: #E84A27;
   -webkit-text-stroke-width: thin; }
 
-.uiuc-flex {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap; }
-
 #jumbotron-liferay {
   font-family: Roboto, sans-serif;
   background-color: #F5F5F5;
   color: #0363cf; }
-
-.liferay-flex {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap; }
 
 #jumbotron-alyssa {
   font-family: "Varela Round", sans-serif;
@@ -151,20 +144,10 @@ body {
   -webkit-text-stroke-color: 3EB489;
   -webkit-text-stroke-width: thin; }
 
-.alyssa-flex {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap; }
-
 #jumbotron-deloitte {
   font-family: Roboto, sans-serif;
   background-color: #F5F5F5;
   color: #80c33f; }
-
-.deloitte-flex {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap; }
 
 .card-img-right {
   max-width: 50%;

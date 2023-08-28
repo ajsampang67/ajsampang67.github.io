@@ -1,4 +1,4 @@
-let alyssaFlex = document.querySelector('.alyssa-flex');
+let alyssaFlex = document.querySelector('#alyssa');
 const alyssa1 = {id: 'alyssa1', src: 'images/alyssa/a1.jpg'}
 const alyssa2 = {id: 'alyssa2', src: 'images/alyssa/a2.jpg'}
 const alyssa3 = {id: 'alyssa3', src: 'images/alyssa/a3.jpg'}

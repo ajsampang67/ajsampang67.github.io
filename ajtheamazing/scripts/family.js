@@ -1,4 +1,4 @@
-let familyFlex = document.querySelector('.family-flex');
+let familyFlex = document.querySelector('#family');
 const nini = {name:"Leilani", relationship: "Sister", 
                 location: "Chicago", desc: "Anesthesiologist", 
                 img: "images/family/leilani.png"}
