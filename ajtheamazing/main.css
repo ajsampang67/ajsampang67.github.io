@@ -86,12 +86,14 @@ body {
   flex-wrap: wrap; }
 
 img#header {
-  height: 100%;
+  width: auto;
+  height: auto;
   max-width: 20vw; }
 
 @media (max-width: 575.98px) {
   img#header {
-    height: 100%;
+    width: auto;
+    height: auto;
     max-width: 40vw; } }
 .flex-item img {
   max-width: 20vw;

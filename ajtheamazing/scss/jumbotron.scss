@@ -5,13 +5,15 @@
 }
 
 img#header{
-  height: 100%;
+  width: auto;
+  height: auto;
   max-width: 20vw;
 }
 
 @include media-breakpoint-only(xs) {
   img#header{
-    height: 100%;
+    width: auto;
+    height: auto;
     max-width: 40vw;
   }
 }
