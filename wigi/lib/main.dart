@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:wigi/src/location.dart';
 import 'src/snap_carousel.dart';
 
@@ -18,8 +17,7 @@ class _WigiState extends State<Wigi> {
   late List<WigiLocation> wigiLocations = [
     WigiLocation(
       "The BRIX on the Fox",
-      "",
-      "https://ajsampangdotcom.s3.amazonaws.com/wigi/1/",
+      1,
       6,
       "__YOU ARE HERE__ \n\nThe BRIX on the Fox was the second venue we visited, and as soon as we left, Alyssa and I knew this was the one. We got in the car and talked about how this was the only place we could truly visualize ourselves getting married. The owners, Rob and Tone, were very thoughtful and purposeful when designing the space. The acoustics, ceremony placement, and ease-of-dance played a large part in our decision.",
       42.10512303768408,
@@ -28,8 +26,7 @@ class _WigiState extends State<Wigi> {
     ),
     WigiLocation(
       "Uptown La Grange Apartments",
-      "",
-      "https://ajsampangdotcom.s3.amazonaws.com/wigi/2/",
+      2,
       0,
       "",
       41.81855079921119,

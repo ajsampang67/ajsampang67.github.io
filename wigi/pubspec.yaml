@@ -39,6 +39,7 @@ dependencies:
   pointer_interceptor: ^0.9.3+6
   carousel_slider: ^4.2.1
   flutter_markdown: ^0.6.17+3
+  label_marker: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -61,7 +62,12 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
+  fonts:
+    - family: inclusive
+      fonts:
+        - asset: assets/fonts/InclusiveSans-Regular.ttf
+        - asset: assets/fonts/InclusiveSans-Italic.ttf
+          style: italic
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
