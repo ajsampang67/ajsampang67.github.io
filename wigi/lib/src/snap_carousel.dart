@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wigi/src/location.dart';
-import 'package:wigi/src/wigi.dart';
+import 'package:wigi/src/wigi_page.dart';
 
 class SnapCarousel extends StatelessWidget {
   final List<WigiLocation> wigiLocations;
@@ -18,7 +18,7 @@ class SnapCarousel extends StatelessWidget {
       height: 200.0,
       child: PageView.builder(
         // store this controller in a State to save the carousel scroll position
-        controller: PageController(viewportFraction: 0.8),
+        controller: PageController(viewportFraction: 0.95),
         itemBuilder: (BuildContext context, int itemIndex) {
           final wigiLocation = wigiLocations[itemIndex];
 
@@ -26,6 +26,7 @@ class SnapCarousel extends StatelessWidget {
 
           return _buildCarouselItem(context, itemIndex, wigiPage);
         },
+        itemCount: wigiLocations.length,
       ),
     );
   }
