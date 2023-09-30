@@ -16,4 +16,4 @@ For help getting started with Flutter development, view the
 samples, guidance on mobile development, and a full API reference.
 
 ## Local Dev
-flutter run -d chrome --web-port=8080
+flutter run -d web-server --web-port=8080

@@ -32,7 +32,7 @@ class CarouselWithIndicatorState extends State<CarouselWithIndicator> {
                       children: <Widget>[
                         Image.network(
                           item,
-                          fit: BoxFit.fill,
+                          fit: BoxFit.contain,
                           width: 1000.0,
                           alignment: Alignment.center,
                         ),
