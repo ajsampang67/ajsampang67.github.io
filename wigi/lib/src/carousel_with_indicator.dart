@@ -74,6 +74,7 @@ class CarouselWithIndicatorState extends State<CarouselWithIndicator> {
                 autoPlay: true,
                 autoPlayInterval: const Duration(seconds: 7),
                 enlargeCenterPage: true,
+                enableInfiniteScroll: false,
                 aspectRatio: 2.0,
                 onPageChanged: (index, reason) {
                   setState(() {

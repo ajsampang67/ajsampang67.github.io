@@ -14,7 +14,6 @@ class SnapCarousel extends StatelessWidget {
 
   Widget _buildCarousel(BuildContext context) {
     return SizedBox(
-      // you may want to use an aspect ratio here for tablet support
       height: MediaQuery.of(context).size.height,
       child: PageView.builder(
         // store this controller in a State to save the carousel scroll position

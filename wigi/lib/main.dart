@@ -63,23 +63,19 @@ class _WigiState extends State<Wigi> {
   }
 
   void parseWigiLocationCSV() async {
-    print("test1");
     final wigiLocationsCSV = await rootBundle.loadString(
       "assets/wigiLocations.csv",
     );
-    print("test2");
     List<List<String>> wigiLocationsList =
         const CsvToListConverter(shouldParseNumbers: false)
             .convert(wigiLocationsCSV, eol: "\n");
-    print(wigiLocationsList[0]);
 
     log(wigiLocationsList.toString());
 
     List<WigiLocation> wigiLocations = [];
 
-    for (int i = 1; i < wigiLocationsList.length; i++) {
+    for (int i = 0; i < wigiLocationsList.length; i++) {
       List rawWigiLocation = wigiLocationsList[i];
-
       List dates = rawWigiLocation.sublist(6);
       wigiLocations.add(
         WigiLocation(

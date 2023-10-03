@@ -39,7 +39,7 @@ class WigiPage extends StatelessWidget {
       onMapCreated: _onMapCreated,
       initialCameraPosition: CameraPosition(
         target: LatLng(wigiLocation.latitude, wigiLocation.longitude),
-        zoom: 15.0,
+        zoom: 12.5,
       ),
     );
 
@@ -53,22 +53,26 @@ Widget buildWigiPage(
 
   Widget titleWidget = Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-    child: FittedBox(
-      fit: BoxFit.fitHeight,
-      child: Text(
-        wigiLocation.name,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: screenHeight * .2,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'inclusive',
+    child: Wrap(
+      //fit: BoxFit.fitHeight,
+      children: <Widget>[
+        Text(
+          wigiLocation.name,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'inclusive',
+          ),
+          textAlign: TextAlign.center,
         ),
-      ),
+      ],
     ),
   );
 
   Widget googleMapsWidget = Container(
     margin: const EdgeInsets.all(10.0),
+    padding: const EdgeInsets.all(20.0),
     child: ClipRRect(
       borderRadius: const BorderRadius.all(Radius.circular(10.0)),
       child: SizedBox(
@@ -89,7 +93,7 @@ Widget buildWigiPage(
       borderRadius: const BorderRadius.all(Radius.circular(10.0)),
       child: SizedBox(
         child: Container(
-          padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 15.0),
+          padding: const EdgeInsets.all(15.0),
           child: MarkdownBody(data: wigiLocation.description),
         ),
       ),
@@ -101,9 +105,9 @@ Widget buildWigiPage(
       child: Column(
         children: <Widget>[
           titleWidget,
-          googleMapsWidget,
-          description,
           imgCarousel,
+          description,
+          googleMapsWidget,
         ],
       ),
     ),
