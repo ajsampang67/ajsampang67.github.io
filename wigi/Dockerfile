@@ -29,7 +29,4 @@ RUN flutter build web
 # Record the exposed port
 EXPOSE 5000
 
-# make server startup script executable and start the web server
-RUN ["chmod", "+x", "/app/server/server.sh"]
-
 CMD python3 -m http.server 5000 --directory build/web
