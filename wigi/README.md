@@ -17,3 +17,16 @@ samples, guidance on mobile development, and a full API reference.
 
 ## Local Dev
 flutter run -d web-server --web-port=8080
+
+# Docker
+## Building docker image
+docker build -t docker.io/ajsampang67/wigi .
+
+## Running Docker image locally
+docker run -p 5000:5000 wigi 
+
+## Tagging new Docker image for push
+docker tag <Docker image ID> docker.io/ajsampang67/wigi:<Version>
+
+## Pushing new Docker image tag
+docker push docker.io/ajsampang67/wigi:<Version>
