@@ -69,6 +69,11 @@ flutter:
         - asset: assets/fonts/InclusiveSans-Regular.ttf
         - asset: assets/fonts/InclusiveSans-Italic.ttf
           style: italic
+    - family: overpass
+      fonts:
+        - asset: assets/fonts/Overpass-VariableFont_wght.ttf
+        - asset: assets/fonts/Overpass-Italic-VariableFont_wght.ttf
+          style: italic
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

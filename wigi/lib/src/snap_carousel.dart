@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:wigi/src/location.dart';
 import 'package:wigi/src/wigi_page.dart';
 
@@ -13,7 +14,13 @@ class SnapCarousel extends StatelessWidget {
   }
 
   Widget _buildCarousel(BuildContext context) {
-    return SizedBox(
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/greenery.jpg"),
+          fit: BoxFit.cover,
+        ),
+      ),
       height: MediaQuery.of(context).size.height,
       child: PageView.builder(
         // store this controller in a State to save the carousel scroll position
@@ -34,10 +41,9 @@ class SnapCarousel extends StatelessWidget {
   Widget _buildCarouselItem(
       BuildContext context, int itemIndex, Widget wigiPage) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
@@ -47,7 +53,10 @@ class SnapCarousel extends StatelessWidget {
             ),
           ],
         ),
-        child: wigiPage,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+          child: wigiPage,
+        ),
       ),
     );
   }

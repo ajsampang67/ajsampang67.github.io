@@ -41,18 +41,10 @@ class CarouselWithIndicatorState extends State<CarouselWithIndicator> {
                           left: 0.0,
                           right: 0.0,
                           child: Container(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Color.fromARGB(200, 0, 0, 0),
-                                  Color.fromARGB(0, 0, 0, 0)
-                                ],
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                              ),
-                            ),
                             padding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 20.0),
+                              vertical: 10.0,
+                              horizontal: 10.0,
+                            ),
                           ),
                         ),
                       ],
@@ -97,8 +89,8 @@ class CarouselWithIndicatorState extends State<CarouselWithIndicator> {
                     shape: BoxShape.circle,
                     color: (Theme.of(context).brightness == Brightness.dark
                             ? Colors.white
-                            : Colors.black)
-                        .withOpacity(_current == entry.key ? 0.9 : 0.4)),
+                            : Colors.grey)
+                        .withOpacity(_current == entry.key ? 0.6 : 0.2)),
               ),
             );
           }).toList(),

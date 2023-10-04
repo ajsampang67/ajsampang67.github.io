@@ -52,7 +52,7 @@ Widget buildWigiPage(
   double screenHeight = MediaQuery.of(context).size.height;
 
   Widget titleWidget = Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+    padding: const EdgeInsets.fromLTRB(20, 25, 20, 0),
     child: Wrap(
       //fit: BoxFit.fitHeight,
       children: <Widget>[
@@ -62,7 +62,7 @@ Widget buildWigiPage(
             color: Colors.black,
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            fontFamily: 'inclusive',
+            fontFamily: 'overpass',
           ),
           textAlign: TextAlign.center,
         ),
@@ -93,7 +93,7 @@ Widget buildWigiPage(
       borderRadius: const BorderRadius.all(Radius.circular(10.0)),
       child: SizedBox(
         child: Container(
-          padding: const EdgeInsets.all(15.0),
+          padding: const EdgeInsets.all(20.0),
           child: MarkdownBody(data: wigiLocation.description),
         ),
       ),
