@@ -1,13 +1,35 @@
-Wherever I'm going...,0,1,"Hi! First off, thanks for coming to our wedding! This is an app called __WIGI__, short for _Wherever I'm going, I'm happy you're coming_. It's a line from our first dance song, _Pretty Boy_ by The Neighbourhood. This is a list of locations Alyssa and I have been throughout our time together. Not exhaustive, but I did my best to include everywhere we took pictures. Scroll through the cards and travel with us!",0,0,2023-10,,,,
-The BRIX on the Fox,1,6,,42.10493996,-88.28448383,2022-5,2023-02,,,
-University of Illinois Urbana-Champaign,2,10,,40.1670741,-88.2210401,2016-4,2018-04,2018-05,,
-UI Ice Arena,3,3,,40.1061521,-88.2321633,2016-7,2017-12,,,
-"Chicago, IL",4,13,,41.87930319,-87.62518347,2016-8,2016-12,2017-12,2018-11,2022-12
-Curtis Orchard & Pumpkin Patch,5,5,,40.0641298,-88.2933331,2016-10,2017-10,,,
-The Sampangs',6,2,,41.6146008,-87.7272501,2016-12,,,,
-United Center,7,4,,41.8812732,-87.6725055,2017-1,2022-04,,,
-Beckwith at UIUC,8,4,,40.10381609,-88.23698142,2017-4,2018-04,,,
-Six Flags Great America,9,1,,42.36550379,-87.93196847,2017-5,,,,
+Wherever I'm going...,0,1,"Hi! 
+
+First off, thanks for coming to our wedding! This is an app called __WIGI__, short for _""Wherever I'm going, I'm happy you're coming""_. It's a line from our first dance song, _Pretty Boy_ by The Neighbourhood. This is a list of locations Alyssa and I have been throughout our time together. Not exhaustive, but I did my best to include everywhere we took pictures. This is the first card of 80-or-so locations. You can swipe through the cards horizontally (swipe left!), and you can swipe through the pictures on each individual card. Each card has a short blurb about the location, and below that is an interactive Google Maps pin of the location itself. Scroll through the cards and travel with us!
+
+For the programmers here -- the source code can be found at https://github.com/ajsampang67/wigi . It's a pretty simple widget-based app written in Dart with Flutter. Very similar to Javascript with React Native. Highly recommend! The app took me about a month to create, from knowing nothing about Dart/Flutter to what you're looking at now. It's deployed on an EC2 instance using docker-compose, served via nginx webserver alongside my personal website.
+
+This first pin below is Jade Mountain, our honeymoon destination!",13.86377037,-61.07620687,2023-10,,,,
+The BRIX on the Fox,1,6,"Welcome to our wedding venue, The BRIX on the Fox! This building is originally a condensed milk factory, built in 1880. In 2018, Rob and Tone Gorman renovated the space into a one-stop wedding venue overlooking the Fox River.
+
+In May of 2022, Alyssa and I were in the middle of our venue tours. The BRIX was the third spot we'd visit, but the last one we'd need. Alyssa and I got in the car and discussed how this was the first venue we could picture getting married. On the trip from The BRIX to the next venue, _Pretty Boy_ by The Neighbourhood came on, and we immediately knew it would be our first dance song.
+
+The Brix is a pretty cool venue. Rob and Tone were purposeful in their renovation of The Brix. The acoustics of the Two-Sixty are targeted such that the dance floor will BOOM without flooding too much noise into the seating area. The ceilings are set up with infrastructure for separating the room into areas for the ceremony, and then shortly after for cocktail hour and reception. Rob and Tone showed their drive to make a beautiful wedding space, and in turn, made the decision easy to make our love official in this space.",42.10493996,-88.28448383,2022-5,2023-02,,,
+University of Illinois Urbana-Champaign,2,10,"Alyssa and I met at the University of Illinois at Urbana-Champaign. Here we took a GenEd, Latin American Studies together. We met when our mutual friends sat together, where I took the empty seat next to Alyssa. We chatted through the class and parted ways. A few days later, I go over to my friend's apartment to grab some of my beers from their fridge and lo-and-behold! Alyssa was there! She was friends with my neighboring apartment as they were both in UIUC's nursing program.
+
+From there, we were lucky enough to hang out more and get to know one another. We went on lunch dates and study dates. We spent time at the Underground Library enjoying Bad and Boujee and Pillow Talk music videos on repeat. We spent hours watching the Jimmy Neutron Movie while writing an essay about Latin American coups. We enjoyed our midnight cheese snacks and insomnia cookies. We worked hard and played harder, and somehow came out with our degrees!",40.1670741,-88.2210401,2016-4,2018-04,2018-05,,
+UI Ice Arena,3,3,"The UI Ice Arena was a pretty regular place for the two of us. We were at UIUC right at the tail end of the Blackhawks' run, resulting in myself having some interest in learning how to skate in hockey skates. Alyssa, more of a natural, had 14 years of figure skating experience already under her belt! The pictures you see above are July of 2016 from our first ice skating date, and again in December of 2017 for a special holiday-themed skate",40.1061521,-88.2321633,2016-7,2017-12,,,
+"Chicago, IL",4,13,"Chicago is where Alyssa and I had our first _real real_ date. Ally had told me that despite her living in Chicago, she never went to any of the tourist spots. She'd never been to The Bean, gone to the top of the Sears Tower, or ridden the Ferris wheel at Navy Pier! I grabbed us some disposable cameras and took her on a tourist date around the city. The first few photos you see are just that; they're a bit vintage looking from the cheap film of the disposable. 
+
+Other than that, it's only natural we'd visit the city fairly often. We liked to go in the winter to visit the Christkindlmarket, do some Macy's window shopping, and take some pictures with the big tree. The last couple of photos are from some double dates we had with our good friends Alyssa and Promit, who are sweet enough to make time for us every time they're back in the area!",41.87930319,-87.62518347,2016-8,2016-12,2017-12,2018-11,2022-12
+Curtis Orchard & Pumpkin Patch,5,5,"Curtis is a nice farm out in Champaign. Alyssa is a real Autumn Ally and makes sure we visit a pumpkin patch every year. They've got a big chair, petting zoo, and delicious hot apple cider! 
+
+_""I like it! We go there a lot when we were young spring chickens, and I like it. What are you saying about it Alf? That you like it?""_ - Alyssa Nicole",40.0641298,-88.2933331,2016-10,2017-10,,,
+The Sampangs',6,2,December of 2016 was the first holiday season we spent together. Enjoy a quick couple of pictures of Alyssa spending time with the Sampang's on Christmas!,41.6146008,-87.7272501,2016-12,,,,
+United Center,7,4,"Just after the New Year of 2017, Alyssa got us some Blackhawks tickets for our first NHL game together! This is the day we first consider ourselves ""official"", January 5th of 2016. Since then we celebrate every 5th of the month as ""Buns Day"" (like pork bun, because Ally is cute like a pork bun). We make sure to have a nice dinner date, or watch a movie, or at very least fit in an extra face kiss!
+
+On this day I actually accidentally threw out our Hawks tickets before the game! This was back when they __only__ accepted paper tickets. The hotel had already taken away our trash, and I begged the front desk to dig through the trash and retrieve it for us. Lucky for us, they called back half an hour later, and found it! Alyssa and I attended the game and had a fantastic time. Patrick Kane scored the GWG in OT on a breakaway as Alyssa took a bathroom break.",41.8812732,-87.6725055,2017-1,2022-04,,,
+Beckwith at UIUC,8,4,"Beckwith is a residential community at UIUC dedicated to students with severe physical disabilities, in which Beckwith assists these residents in the transition to independent living. Alyssa worked as a CNA assisting students with some of their daily tasks, such as getting ready for bed or preparing meals for the day. 
+
+The photos in this slide are from the yearly Beckwith semi-formal 2018 and 2019! We got to dress up with a theme and have dinner with everyone. The people Alyssa got to work with were always so sweet, Lauren was a huge Panic! at the Disco fan like myself, and our good friend Danny who always made us laugh went on to become a successful lawyer after school!",40.10381609,-88.23698142,2017-4,2018-04,,,
+Six Flags Great America,9,1,"I hate rollercoasters, but Alyssa loves them! Somehow she got me to go along with her in May of 2017 and I went on _almost_ every ride with her. I will never go on giant drops, and I hate wooden roller coasters. Alyssa had a great time though.
+
+_""Aj hated every second of it""_ - Alyssa Nicole",42.36550379,-87.93196847,2017-5,,,,
 "Durham, NC",10,4,,35.99446404,-78.89867446,2017-6,,,,
 Christkindlmarket Chicago,11,3,,41.8842908,-87.6296981,2017-11,2019-12,2021-12,,
 Sakanaya,12,1,,40.11031334,-88.23288648,2018-2,,,,
@@ -70,8 +92,8 @@ Rockwell on the River,68,2,,41.9377146,-87.6911303,2022-5,,,,
 Busse Lake,69,2,,42.02473505,-88.01507653,2022-6,,,,
 Machine: Engineered Dining & Drink,70,1,,41.903641,-87.6739106,2022-6,,,,
 "Mackinac Island, MI",71,12,,45.86985708,-84.62720325,2022-9,2022-10,,,
-"St. Joseph, MI",72,3,,42.09361633,-86.48979184,2022-9,,,,
-"Benton Harbor, MI",73,10,,48.3056109,-82.122805,2022-10,,,,
+"St. Joseph, MI",72,6,,42.09361633,-86.48979184,2022-9,,,,
+"Benton Harbor, MI",73,7,,48.3056109,-82.122805,2022-10,,,,
 Goebbert's Farm,74,3,,42.0684843,-88.1662042,2022-10,,,,
 The Morton Arboretum,75,4,,41.8147009,-88.0705406,2022-11,,,,
 The Jordans',76,7,,41.9787858,-87.8145871,2022-12,,,,
