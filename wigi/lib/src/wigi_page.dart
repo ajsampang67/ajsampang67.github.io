@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:wigi/src/carousel_with_indicator.dart';
 import 'location.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WigiPage extends StatelessWidget {
   final WigiLocation wigiLocation;
@@ -35,6 +39,7 @@ class WigiPage extends StatelessWidget {
         )
       },
       zoomControlsEnabled: false,
+      // scrollGesturesEnabled: false,
       mapType: MapType.hybrid,
       onMapCreated: _onMapCreated,
       initialCameraPosition: CameraPosition(
@@ -49,8 +54,6 @@ class WigiPage extends StatelessWidget {
 
 Widget buildWigiPage(
     BuildContext context, WigiLocation wigiLocation, Widget googleMap) {
-  double screenHeight = MediaQuery.of(context).size.height;
-
   Widget titleWidget = Padding(
     padding: const EdgeInsets.fromLTRB(20, 25, 20, 0),
     child: Wrap(
@@ -94,7 +97,14 @@ Widget buildWigiPage(
       child: SizedBox(
         child: Container(
           padding: const EdgeInsets.all(20.0),
-          child: MarkdownBody(data: wigiLocation.description),
+          child: MarkdownBody(
+            data: wigiLocation.description,
+            onTapLink: (text, url, title) {
+              if (url != null) {
+                launchUrl(Uri.parse(url));
+              }
+            },
+          ),
         ),
       ),
     ),
