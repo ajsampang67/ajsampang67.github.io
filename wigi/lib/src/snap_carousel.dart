@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:wigi/src/location.dart';
 import 'package:wigi/src/wigi_page.dart';
 

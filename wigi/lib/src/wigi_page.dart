@@ -1,9 +1,6 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:wigi/src/carousel_with_indicator.dart';
 import 'location.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -86,7 +83,7 @@ Widget buildWigiPage(
   );
 
   Widget imgCarousel = SizedBox(
-    height: 250,
+    height: 350,
     child: CarouselWithIndicator(imgList: getImgList(wigiLocation)),
   );
 

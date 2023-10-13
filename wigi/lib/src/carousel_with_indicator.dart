@@ -24,16 +24,15 @@ class CarouselWithIndicatorState extends State<CarouselWithIndicator> {
         // ignore: avoid_unnecessary_containers
         .map((item) => Container(
               child: Container(
-                margin: const EdgeInsets.all(5.0),
+                margin: const EdgeInsets.all(7.5),
                 child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+                    borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                     child: Stack(
                       alignment: Alignment.center,
                       children: <Widget>[
                         Image.network(
                           item,
                           fit: BoxFit.contain,
-                          width: 1000.0,
                           alignment: Alignment.center,
                         ),
                         Positioned(
@@ -64,10 +63,10 @@ class CarouselWithIndicatorState extends State<CarouselWithIndicator> {
             carouselController: _controller,
             options: CarouselOptions(
                 autoPlay: true,
-                autoPlayInterval: const Duration(seconds: 7),
+                autoPlayInterval: const Duration(seconds: 10),
                 enlargeCenterPage: true,
                 enableInfiniteScroll: false,
-                aspectRatio: 2.0,
+                aspectRatio: 1.0,
                 onPageChanged: (index, reason) {
                   setState(() {
                     _current = index;
