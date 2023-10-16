@@ -57,7 +57,7 @@ Widget buildWigiPage(
       //fit: BoxFit.fitHeight,
       children: <Widget>[
         Text(
-          wigiLocation.name,
+          "${wigiLocation.index}. ${wigiLocation.name}",
           style: const TextStyle(
             color: Colors.black,
             fontSize: 32,
