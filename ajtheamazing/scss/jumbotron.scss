@@ -32,9 +32,29 @@ img#header{
   max-width: 20vw;
 }
 
+#jumbotron-projects {
+  color: $mainBrandColor;
+  background-color: $lightShades;
+  margin-top: 2rem;
+}
+
+.project-info {
+  display: flex;
+}
+
+#jumbotron-projects .thumbnail {
+  flex-basis: 25%;
+  margin-right: 2rem;
+}
+
+#jumbotron-projects .description {
+  flex-basis: 75%;
+}
+
 #jumbotron-family {
   color: $mainBrandColor;
   background-color: $lightShades;
+  margin-top: 2rem;
 }
 
 #jumbotron-family .curve {

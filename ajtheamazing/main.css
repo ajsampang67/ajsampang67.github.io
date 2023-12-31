@@ -107,9 +107,25 @@ img#header {
   flex: 1;
   max-width: 20vw; }
 
+#jumbotron-projects {
+  color: #69CAC5;
+  background-color: #F5F5F5;
+  margin-top: 2rem; }
+
+.project-info {
+  display: flex; }
+
+#jumbotron-projects .thumbnail {
+  flex-basis: 25%;
+  margin-right: 2rem; }
+
+#jumbotron-projects .description {
+  flex-basis: 75%; }
+
 #jumbotron-family {
   color: #69CAC5;
-  background-color: #F5F5F5; }
+  background-color: #F5F5F5;
+  margin-top: 2rem; }
 
 #jumbotron-family .curve {
   float: left;

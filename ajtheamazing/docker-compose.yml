@@ -7,25 +7,3 @@ services:
     restart: always
     ports:
       - 8080:8080
-    networks:
-      - ajsampangdotcom
-
-  webserver:
-    container_name: webserver
-    image: ajsampang67/ajwebserver:latest
-    depends_on:
-      - ajtheamazing
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ./config:/config
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /tmp/acme_challenge:/tmp/acme_challenge
-    restart: always
-    networks:
-      - ajsampangdotcom
-
-  networks:
-    ajsampangdotcom:
-      driver: bridge
