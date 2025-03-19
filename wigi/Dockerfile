@@ -1,9 +1,10 @@
 # Install Operating system and dependencies
-FROM ubuntu:23.04
+FROM ubuntu:24.04
 
 RUN apt-get update 
 RUN apt-get upgrade -y
-RUN apt-get install -y curl git wget unzip libgconf-2-4 gdb libstdc++6 libglu1-mesa fonts-droid-fallback lib32stdc++6 python3 snapd
+RUN apt-get install -y curl git wget unzip python3 snapd
+# libgconf-2-4 gdb libstdc++6 libglu1-mesa fonts-droid-fallback lib32stdc++6 
 RUN apt-get clean
 
 # download Flutter SDK from Flutter Github repo

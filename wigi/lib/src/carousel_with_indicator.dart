@@ -17,7 +17,7 @@ class CarouselWithIndicatorState extends State<CarouselWithIndicator> {
   List<String> imgList;
   late List<Widget> imageSliders;
   int _current = 0;
-  final CarouselController _controller = CarouselController();
+  final CarouselSliderController _controller = CarouselSliderController();
 
   CarouselWithIndicatorState({required this.imgList}) {
     imageSliders = imgList
