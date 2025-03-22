@@ -51,3 +51,22 @@
 1. Setup cron job to refresh cert when necessary
     `sudo crontab -e`
     `0 0 * * * /usr/bin/certbot renew --quiet && systemctl reload nginx`
+
+1. Setup as a systemd service
+    ```
+    [Unit]
+    Description=ajsampang.com
+    After=docker.service
+    Requires=docker.service
+
+    [Service]
+    Restart=always
+    WorkingDirectory=<PATH TO DOCKER COMPOSE FILE>
+    ExecStart=/usr/local/bin/docker-compose up
+    ExecStop=/usr/local/bin/docker-compose down
+    TimeoutStartSec=300
+    TimeoutStopSec=300
+
+    [Install]
+    WantedBy=multi-user.target
+    ```
