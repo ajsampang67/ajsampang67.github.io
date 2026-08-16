@@ -1,0 +1,9 @@
+version: '3.3'
+
+services:
+  ajtheamazing:
+    container_name: ajtheamazing
+    image: ajsampang67/ajtheamazing:latest 
+    restart: always
+    ports:
+      - 8080:8080

@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Aj's Website</title>
+        <!-- Standard includes -->
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="robots" content="index, follow">
+        <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/main.css"/>
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
+              integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+              crossorigin="anonymous">
+        <!-- Bootstrap -->
+        <!-- React -->
+        <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+        <!-- React -->
+        <!-- Standard includes -->
+    </head>
+    <body>
+    <div class="bg-container">
+            <!--Navigation bar-->
+            <div id="nav-placeholder">
+            </div>
+            <script>
+                $(function(){ $("#nav-placeholder").load("/templates/navbar.html"); });
+            </script>
+            <!--end of Navigation bar-->
+            <div class="body-margin">
+                <div class="jumbotron" id="jumbotron-family">
+                    <h1 class="display-4">Hello, World!</h1>
+                    <p class="lead">I was born into the Sampang family in
+                        May 1996</p>
+                    <hr class="my-4">
+                    <div class="flex" id="family">
+                        <script src="/scripts/family.js"></script>
+                    </div>
+                </div>
+                <div class="jumbotron" id="jumbotron-alyssa">
+                    <h1 class="display-4">You Are My Person</h1>
+                    <p class="lead">I married my wife Alyssa Nicole in October 2023</p>
+                    <hr class="my-4">
+                    <div class="flex" id="alyssa">
+                        <script src="/scripts/alyssa.js"></script>
+                    </div>
+                </div>
+                <div class="jumbotron" id="jumbotron-uiuc">
+                    <h1 class="display-4">I-L-L!</h1>
+                    <p class="lead">I graduated with a Bachelor's degree in
+                        Mathematics & Computer Science from the
+                        University of Illinois in May 2018</p>
+                    <hr class="my-4">
+                    <div class="flex" id="uiuc">
+                        <script src="/scripts/uiuc.js"></script>
+                    </div>
+                </div>
+                <div class="jumbotron" id="jumbotron-liferay">
+                    <img src="/images/liferay/liferay-logo.png" id="header"/>
+                    <p class="lead">I started my career as a Software Engineer
+                        and Consultant with Liferay in July 2018</p>
+                    <hr class="my-4">
+                    <div class="flex" id="liferay">
+                        <script src="/scripts/liferay.js"></script>
+                    </div>
+                </div>
+                <div class="jumbotron" id="jumbotron-deloitte">
+                    <img src="/images/deloitte/deloitte-logo.png" id="header"/>
+                    <p class="lead">I continued my career as a DevOps Engineer, Cloud Architect,
+                        and Consultant with Deloitte in August 2022</p>
+                    <hr class="my-4">
+                    <div class="flex" id="deloitte">
+                        <script src="/scripts/deloitte.js"></script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
