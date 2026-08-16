@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Aj's Website</title>
+        <!-- Standard includes -->
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="robots" content="index, follow">
+        <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/main.css"/>
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
+            integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+            crossorigin="anonymous">
+        <!-- Bootstrap -->
+        <!-- React -->
+        <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+        <!-- React -->
+        <!-- Standard includes -->
+    </head>
+    <body>
+        <div class="bg-container">
+                <!--Navigation bar-->
+                <div id="nav-placeholder">
+                </div>
+                <script>
+                    $(function(){ $("#nav-placeholder").load("/templates/navbar.html"); });
+                </script>
+                <!--end of Navigation bar-->
+                <div class="body-margin">
+                   <div class="project-jumbotron"
+                </div>
+            </div>
+            <div class="jumbotron" id="jumbotron-projects">
+                <h1 class="display-4"><a style="text-decoration:none; color: inherit;" target="_blank" href="https://wigi.ajsampang.com">Wigi</a></h1>
+                <p class="lead"><a style="color: inherit;" href="https://wigi.ajsampang.com" target="_blank"></a><i>Flutter Web App</i></a>
+                <hr class="my-4">
+                <div class="project-info">
+                    <div class="thumbnail">
+                        <img alt="wigi-thumbnail.gif" src="https://ajsampangdotcom.s3.amazonaws.com/projects/wigi-thumbnail.gif"
+                            id="wigi-thumbnail.gif" class="img-fluid shadow-lg bg-white rounded float-left curve" />
+                    </div>
+                    <div class="description">
+                          <p><i>WIGI</i> is short for <i>"Wherever I'm going, I'm happy you're coming"</i>. It's a line from our first dance song, <i>Pretty Boy</i> by The Neighbourhood. 
+                        This is a list of locations Alyssa and I have been throughout our time together. 
+                        </p>
+                        <p>It is a simple widget-based app written in Dart with Flutter. Very similar to Javascript with React Native. The app took about a month to 
+                        create, from knowing nothing about Dart/Flutter to what you're looking at now. It's deployed on an EC2 instance using docker-compose, served via 
+                        AWS alongside my personal website.
+                        </p>
+                        <p><a href="https://github.com/ajsampang67/wigi" style="color: inherit;" target="_blank">Source Code</a></p>
+                    </div>
+             </div>
+            </div>
+        </body>
+    </html>
