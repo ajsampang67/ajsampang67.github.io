@@ -1,4 +1,11 @@
 .idea/
+.dart_tool/
+.metadata
+.DS_Store
+**/.DS_Store
+wigi-dev/.dart_tool/
+wigi-dev/.metadata
+wigi-dev/build/
 scss/.sass-cache
 .sass-cache
 node_modules/
